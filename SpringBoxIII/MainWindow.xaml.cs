@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -7,6 +8,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -37,10 +39,10 @@ namespace SpringBoxIII
         //public static extern bool GetCursorPos(out System.Drawing.Point lpPoint);
 
         //测试用变量
-        private int X = 0;
-        private int Y = 0;
-        private bool isThereAPoint = false;
+        private bool isAnimationCompleted = true;
         private Point point = new Point(0, 0);
+
+
 
         public MainWindow()
         {
@@ -59,7 +61,6 @@ namespace SpringBoxIII
             _timer.Interval = TimeSpan.FromMilliseconds(10);
             _timer.Tick += Timer_Tick;
             _timer.Start();
-
         }
 
         private void Window_Deactivated(object sender, EventArgs e)
@@ -80,53 +81,21 @@ namespace SpringBoxIII
 
         private void Timer_Tick(object? sender, EventArgs e)
         {
+            Random ran = new Random();
 
-
-            // 移动窗口
-            // System.Drawing.Point mp = new System.Drawing.Point();
-            //GetCursorPos(out mp);
-            //Canvas.SetLeft(Img, mp.X);
-            //Canvas.SetTop(Img, mp.Y);
-
-            if (isThereAPoint == false)
+            Storyboard storyboard = (Storyboard)this.FindResource("MoveAnimation");
+            storyboard.Completed += (s, e) => { isAnimationCompleted = true; };
+            if (isAnimationCompleted == true)
             {
-                Random ran = new Random();
-                isThereAPoint = true;
-                point.X = ran.Next(77, 1000);
-                point.Y = ran.Next(77, 1000);
+                this.Resources["FromValueX"] = this.Resources["ToValueX"];
+                this.Resources["FromValueY"] = this.Resources["ToValueY"];
+                this.Resources["ToValueX"] = (double)ran.Next(0, (int)this.ActualWidth);
+                this.Resources["ToValueY"] = (double)ran.Next(0, (int)this.ActualHeight);
+                storyboard.Begin();
+                isAnimationCompleted = false;
+                //MessageBox.Show("Info");
+                Trace.WriteLine(this.Resources["ToValueY"]);
             }
-
-            else if (X == point.X && Y == point.Y)
-            {
-                isThereAPoint = false;
-            }
-
-            else if (Y != point.Y)
-            {
-                if (Y < point.Y)
-                {
-                    Y += 1;
-                }
-                else
-                {
-                    Y -= 1;
-                }
-            }
-            else if (X != point.X)
-            {
-                if (X < point.X)
-                {
-                    X += 1;
-                }
-                else
-                {
-                    X -= 1;
-                }
-            }
-
-            Canvas.SetTop(Img, Y);
-            Canvas.SetLeft(Img, X);
-
         }
     }
 }

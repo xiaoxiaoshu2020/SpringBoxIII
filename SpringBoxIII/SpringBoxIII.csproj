@@ -8,4 +8,12 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Kitten.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Kitten.png" />
+  </ItemGroup>
+
 </Project>
