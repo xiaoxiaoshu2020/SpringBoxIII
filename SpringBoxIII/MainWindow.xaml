@@ -18,12 +18,6 @@
     </Window.DataContext>
 
     <Window.Resources>
-        <!--定义坐标资源-->
-        <!--<sys:Double x:Key="FromValueX">0</sys:Double>
-        <sys:Double x:Key="ToValueX">0</sys:Double>
-        <sys:Double x:Key="FromValueY">0</sys:Double>
-        <sys:Double x:Key="ToValueY">0</sys:Double>-->
-
         <!--定义移动动画-->
         <Storyboard x:Key="MoveAnimation">
             <DoubleAnimation
@@ -31,18 +25,27 @@
             Storyboard.TargetProperty="(Canvas.Left)"
             From="{Binding From.X}"
             To="{Binding To.X }"
-            Duration="0:0:2" />
+            Duration="{Binding DurationX}" />
             <DoubleAnimation
             Storyboard.TargetName="Img"
             Storyboard.TargetProperty="(Canvas.Top)"
             From="{Binding From.Y}"
             To="{Binding To.Y }"
-            Duration="0:0:2" />
+            Duration="{Binding DurationY}" />
         </Storyboard>
     </Window.Resources>
     <Grid>
         <Canvas Name="Canvas">
-            <Image Source="/Kitten.png" Name="Img" Height="180" Width="180"/>
+            <Image Source="/Mouse.png" Name="Img" Height="180" Width="180" RenderTransformOrigin="0.5,0.5">
+                <Image.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform/>
+                        <SkewTransform/>
+                        <RotateTransform Angle="{Binding Angle}"/>
+                        <TranslateTransform/>
+                    </TransformGroup>
+                </Image.RenderTransform>
+            </Image>
         </Canvas>
     </Grid>
 
