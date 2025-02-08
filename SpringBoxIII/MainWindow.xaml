@@ -13,27 +13,31 @@
         Deactivated="Window_Deactivated"
         Loaded="Window_Loaded">
 
+    <Window.DataContext>
+        <local:MainViewModel/>
+    </Window.DataContext>
+
     <Window.Resources>
         <!--定义坐标资源-->
-        <sys:Double x:Key="FromValueX">0</sys:Double>
+        <!--<sys:Double x:Key="FromValueX">0</sys:Double>
         <sys:Double x:Key="ToValueX">0</sys:Double>
         <sys:Double x:Key="FromValueY">0</sys:Double>
-        <sys:Double x:Key="ToValueY">0</sys:Double>
-        
+        <sys:Double x:Key="ToValueY">0</sys:Double>-->
+
         <!--定义移动动画-->
         <Storyboard x:Key="MoveAnimation">
             <DoubleAnimation
             Storyboard.TargetName="Img"
             Storyboard.TargetProperty="(Canvas.Left)"
-            From="{DynamicResource FromValueX}"
-            To="{DynamicResource ToValueX}"
-            Duration="0:0:5" />
+            From="{Binding From.X}"
+            To="{Binding To.X }"
+            Duration="0:0:2" />
             <DoubleAnimation
             Storyboard.TargetName="Img"
             Storyboard.TargetProperty="(Canvas.Top)"
-            From="{DynamicResource FromValueY}"
-            To="{DynamicResource ToValueY}"
-            Duration="0:0:5" />
+            From="{Binding From.Y}"
+            To="{Binding To.Y }"
+            Duration="0:0:2" />
         </Storyboard>
     </Window.Resources>
     <Grid>

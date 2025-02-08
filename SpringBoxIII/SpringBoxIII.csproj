@@ -10,10 +10,14 @@
 
   <ItemGroup>
     <None Remove="Kitten.png" />
+    <None Remove="KittenL.png" />
+    <None Remove="KittenR.png" />
   </ItemGroup>
 
   <ItemGroup>
     <Resource Include="Kitten.png" />
+    <Resource Include="KittenL.png" />
+    <Resource Include="KittenR.png" />
   </ItemGroup>
 
 </Project>

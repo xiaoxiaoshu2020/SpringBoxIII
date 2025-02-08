@@ -40,6 +40,7 @@ namespace SpringBoxIII
 
         //测试用变量
         private bool isAnimationCompleted = true;
+        //private int speed = 3;
         private Point point = new Point(0, 0);
 
 
@@ -81,21 +82,20 @@ namespace SpringBoxIII
 
         private void Timer_Tick(object? sender, EventArgs e)
         {
-            Random ran = new Random();
-
             Storyboard storyboard = (Storyboard)this.FindResource("MoveAnimation");
             storyboard.Completed += (s, e) => { isAnimationCompleted = true; };
             if (isAnimationCompleted == true)
             {
-                this.Resources["FromValueX"] = this.Resources["ToValueX"];
-                this.Resources["FromValueY"] = this.Resources["ToValueY"];
-                this.Resources["ToValueX"] = (double)ran.Next(0, (int)this.ActualWidth);
-                this.Resources["ToValueY"] = (double)ran.Next(0, (int)this.ActualHeight);
+                if (DataContext is MainViewModel viewModel)
+                {
+                    Random ran = new Random();
+                    viewModel.From = viewModel.To;
+                    viewModel.To = new(ran.Next(0, (int)this.ActualWidth), ran.Next(0, (int)this.ActualHeight));
+                }
                 storyboard.Begin();
                 isAnimationCompleted = false;
-                //MessageBox.Show("Info");
-                Trace.WriteLine(this.Resources["ToValueY"]);
             }
+            //Trace.WriteLine(Canvas.GetLeft(Img));
         }
     }
 }
