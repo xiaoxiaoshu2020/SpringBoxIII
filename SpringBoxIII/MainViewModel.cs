@@ -15,8 +15,8 @@ namespace SpringBoxIII
         private System.Windows.Point _From = new(0, 0);
         private System.Windows.Point _To = new(0, 0);
         private double _Angle = 0;
-        private Duration _DurationX = new TimeSpan(0, 0, 2);
-        private Duration _DurationY = new TimeSpan(0, 0, 2);
+        private Duration _DurationX = new TimeSpan(0, 0, 0);
+        private Duration _DurationY = new TimeSpan(0, 0, 0);
 
         public System.Windows.Point From
         {

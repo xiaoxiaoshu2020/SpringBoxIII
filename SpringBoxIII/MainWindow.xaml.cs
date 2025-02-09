@@ -39,9 +39,9 @@ namespace SpringBoxIII
         //public static extern bool GetCursorPos(out System.Drawing.Point lpPoint);
 
         //测试用变量
-        private bool isAnimationCompleted = true;
-        private int speed = 1000;
-        private Point point = new Point(0, 0);
+        private bool _isAnimationCompleted = true;
+        private int _moveSpeed = 300;
+        private Point _point = new Point(0, 0);
 
 
 
@@ -84,35 +84,46 @@ namespace SpringBoxIII
             // 计算两点之间的差值
             double deltaX = target.X - center.X;
             double deltaY = target.Y - center.Y;
-
             // 使用 Math.Atan2 计算角度（弧度）
             double angleRadians = Math.Atan2(deltaY, deltaX);
-
             // 将弧度转换为角度
             double angleDegrees = angleRadians * (180 / Math.PI);
-
             return angleDegrees;
+        }
+        private TimeSpan CalculatedDuration(int speed, int displacement)
+        {
+            int totalSeconds = displacement / speed;
+            int hours = totalSeconds / 3600;
+            int minutes = (totalSeconds % 3600) / 60;
+            int seconds = totalSeconds % 60;
+            if (hours == 0 && minutes == 0 && seconds == 0)
+            {
+                seconds = 1;
+            }
+            return new(hours, minutes, seconds);
         }
         private void Timer_Tick(object? sender, EventArgs e)
         {
             Storyboard storyboard = (Storyboard)this.FindResource("MoveAnimation");
-            storyboard.Completed += (s, e) => { isAnimationCompleted = true; };
+            storyboard.Completed += (s, e) => { _isAnimationCompleted = true; };
             Point imageCenter = new Point(
                 Img.ActualWidth / 2 + Canvas.GetLeft(Img),
                 Img.ActualHeight / 2 + Canvas.GetTop(Img)
             );
             if (DataContext is MainViewModel viewModel)
             {
-                if (isAnimationCompleted == true)
+                Trace.WriteLine("Top:" + Canvas.GetTop(Img));
+                if (_isAnimationCompleted == true)
                 {
                     Random ran = new Random();
                     viewModel.From = viewModel.To;
                     viewModel.To = new(ran.Next(0, (int)this.ActualWidth), ran.Next(0, (int)this.ActualHeight));
-                    //viewModel.DurationX = new TimeSpan(0, 0, (int)Math.Abs(viewModel.To.X - viewModel.From.X) / speed);
-                    // viewModel.DurationY = new TimeSpan(0, 0, (int)Math.Abs(viewModel.To.Y - viewModel.From.Y) / speed);
+                    viewModel.DurationX = CalculatedDuration(_moveSpeed, (int)Math.Abs(viewModel.To.X - viewModel.From.X));
+                    viewModel.DurationY = CalculatedDuration(_moveSpeed, (int)Math.Abs(viewModel.To.Y - viewModel.From.Y));
+                    Trace.WriteLine("DurationX:" + viewModel.DurationX);
                     viewModel.Angle = CalculateAngle(imageCenter, viewModel.To) - 90;
                     storyboard.Begin();
-                    isAnimationCompleted = false;
+                    _isAnimationCompleted = false;
                 }
             }
         }
