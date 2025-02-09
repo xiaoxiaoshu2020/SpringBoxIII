@@ -15,8 +15,7 @@ namespace SpringBoxIII
         private System.Windows.Point _From = new(0, 0);
         private System.Windows.Point _To = new(0, 0);
         private double _Angle = 0;
-        private Duration _DurationX = new TimeSpan(0, 0, 2);
-        private Duration _DurationY = new TimeSpan(0, 0, 2);
+        private Duration _Duration = new TimeSpan(0, 0, 0, 0, 0);
 
         public System.Windows.Point From
         {
@@ -45,22 +44,13 @@ namespace SpringBoxIII
                 OnPropertyChanged(nameof(Angle));
             }
         }
-        public Duration DurationX
+        public Duration Duration
         {
-            get { return _DurationX; }
+            get { return _Duration; }
             set
             {
-                _DurationX = value;
-                OnPropertyChanged(nameof(DurationX));
-            }
-        }
-        public Duration DurationY
-        {
-            get { return _DurationY; }
-            set
-            {
-                _DurationY = value;
-                OnPropertyChanged(nameof(DurationY));
+                _Duration = value;
+                OnPropertyChanged(nameof(Duration));
             }
         }
 

@@ -25,13 +25,13 @@
             Storyboard.TargetProperty="(Canvas.Left)"
             From="{Binding From.X}"
             To="{Binding To.X }"
-            Duration="{Binding DurationX}" />
+            Duration="{Binding Duration}" />
             <DoubleAnimation
             Storyboard.TargetName="Img"
             Storyboard.TargetProperty="(Canvas.Top)"
             From="{Binding From.Y}"
             To="{Binding To.Y }"
-            Duration="{Binding DurationY}" />
+            Duration="{Binding Duration}" />
         </Storyboard>
     </Window.Resources>
     <Grid>
