@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
@@ -111,7 +112,7 @@ namespace SpringBoxIII
             Trace.WriteLine("time:" + time);
             return time;
         }
-        private void PlayMoveAnimation(string animationName, Point To)
+        private void PlayMoveAnimation(string animationName, Point To, Action<object?, EventArgs?> handler)
         {
             ArgumentNullException.ThrowIfNull(animationName);
 
@@ -135,10 +136,10 @@ namespace SpringBoxIII
                         viewModel.Duration = CalculatedDuration(_moveSpeed, (int)Math.Abs(viewModel.To.X - viewModel.From.X));
                     }
                     viewModel.Angle = CalculateAngle(imageCenter, viewModel.To) - 90;
-                    Storyboard storyboard = (Storyboard)this.FindResource("MoveAnimation");
-                    storyboard.Completed += (s, e) => { _isAnimationCompleted = true; };
-                    storyboard.Begin();
                     _isAnimationCompleted = false;
+                    Storyboard storyboard = (Storyboard)this.FindResource("MoveAnimation");
+                    storyboard.Completed += new EventHandler(handler);
+                    storyboard.Begin();
                 }
             }
         }
@@ -154,6 +155,7 @@ namespace SpringBoxIII
                     WeightedRandom weightedRandom = new(randomEvents, weights);
                     randomEvent = weightedRandom.GetRandomValue();
                     Trace.WriteLine("randomEvent:" + randomEvent);
+                    _isEventCompleted = false;
                 }
                 if (randomEvent == 1)
                 {
@@ -162,13 +164,18 @@ namespace SpringBoxIII
                         _moveSpeed = 350;
                         Random ran = new(Guid.NewGuid().GetHashCode());
                         Img.Visibility = Visibility.Visible;
-                        Task.Delay(ran.Next(0, 3500)).Wait();
-                        PlayMoveAnimation("MoveAnimation", new(ran.Next(0, (int)this.ActualWidth) + 10, ran.Next(0, (int)this.ActualHeight) + 10));
+                        Task.Delay(ran.Next(350, 3500)).Wait();
+                        PlayMoveAnimation("MoveAnimation", new(ran.Next(0, (int)this.ActualWidth) + 10, ran.Next(0, (int)this.ActualHeight) + 10), (s, e) =>
+                        {
+                            _isAnimationCompleted = true;
+                        });
+                        _isEventCompleted = true;
                     }
                 }
                 else if (randomEvent == 2)
                 {
                     _moveSpeed = 500;
+                    Trace.WriteLine("isMovedToCursor:" + _isMovedToCursor);
                     if (_isMovedToCursor)
                     {
                         Point windowPoint = new((int)Canvas.GetLeft(Img), (int)Canvas.GetTop(Img));
@@ -179,8 +186,11 @@ namespace SpringBoxIII
                     {
                         GetCursorPos(out System.Drawing.Point screenPoint);
                         var windowPoint = PointFromScreen(new Point(screenPoint.X, screenPoint.Y)); // 转换为窗口坐标
-                        PlayMoveAnimation("MoveAnimation", windowPoint);
-                        if (Math.Abs(Canvas.GetLeft(Img) - windowPoint.X) <= 50 && Math.Abs(Canvas.GetTop(Img) - windowPoint.Y) <= 50)
+                        PlayMoveAnimation("MoveAnimation", windowPoint, (s, e) =>
+                        {
+                            _isAnimationCompleted = true;
+                        });
+                        if (Canvas.GetLeft(Img) == windowPoint.X && Canvas.GetTop(Img) == windowPoint.Y)
                         {
                             _isMovedToCursor = true;
                         }
@@ -188,12 +198,13 @@ namespace SpringBoxIII
                     if (_isAnimationCompleted && _isMovedToCursor)
                     {
                         Random ran = new(Guid.NewGuid().GetHashCode());
-                        PlayMoveAnimation("MoveAnimation", new(ran.Next(0, (int)this.ActualWidth) + 10, ran.Next(0, (int)this.ActualHeight) + 10));
-                        if (_isAnimationCompleted)
+                        PlayMoveAnimation("MoveAnimation", new(ran.Next(0, (int)this.ActualWidth) + 10, ran.Next(0, (int)this.ActualHeight) + 10), (s, e) =>
                         {
-                            _isEventCompleted = true;
+                            _isAnimationCompleted = true;
                             _isMovedToCursor = false;
-                        }
+                            _isEventCompleted = true;
+                        });
+                        Task.Delay(ran.Next(350, 400)).Wait();
                     }
                 }
             }
