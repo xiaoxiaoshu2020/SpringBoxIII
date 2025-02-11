@@ -36,7 +36,7 @@
     </Window.Resources>
     <Grid>
         <Canvas Name="Canvas">
-            <Image Source="/Mouse.png" Name="Img" Height="180" Width="180" RenderTransformOrigin="0.5,0.5">
+            <Image Source="/Mouse.png" Name="Img" Height="110" Width="110" RenderTransformOrigin="0.5,0.5">
                 <Image.RenderTransform>
                     <TransformGroup>
                         <ScaleTransform/>
