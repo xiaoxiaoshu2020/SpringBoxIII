@@ -177,7 +177,6 @@ namespace SpringBoxIII
                     }
                     if (_isAnimationCompleted && !_isMovedToCursor)
                     {
-                        Img.Visibility = Visibility.Visible;
                         GetCursorPos(out System.Drawing.Point screenPoint);
                         var windowPoint = PointFromScreen(new Point(screenPoint.X, screenPoint.Y)); // 转换为窗口坐标
                         PlayMoveAnimation("MoveAnimation", windowPoint);
