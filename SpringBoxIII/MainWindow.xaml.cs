@@ -101,6 +101,15 @@ namespace SpringBoxIII
             double angleDegrees = angleRadians * (180 / Math.PI);
             return angleDegrees;
         }
+        private static bool IsNearTarget(Point currentPosition, Point targetPosition)
+        {
+            const double Tolerance = 100.0; // 容差值
+            double deltaX = Math.Abs(currentPosition.X - targetPosition.X);
+            double deltaY = Math.Abs(currentPosition.Y - targetPosition.Y);
+            Trace.WriteLine("deltaX:" + deltaX);
+            Trace.WriteLine("deltaY:" + deltaY);
+            return deltaX < Tolerance && deltaY < Tolerance;
+        }
         private static TimeSpan CalculatedDuration(double speed, double displacement)
         {
             double totalSeconds = displacement / speed;
@@ -112,12 +121,18 @@ namespace SpringBoxIII
             Trace.WriteLine("time:" + time);
             return time;
         }
+        /// <summary>
+        /// 播放移动动画
+        /// </summary>
+        /// <param name="animationName">要播放的Storyboard的名称</param>
+        /// <param name="To">从当前坐标要到达的目标点</param>
+        /// <param name="handler">当动画结束时调用的函数</param>
         private void PlayMoveAnimation(string animationName, Point To, Action<object?, EventArgs?> handler)
         {
             ArgumentNullException.ThrowIfNull(animationName);
 
             Img.Visibility = Visibility.Visible;
-            Trace.WriteLine("isAnimationCompleted:" + _isAnimationCompleted);
+            //Trace.WriteLine("isAnimationCompleted:" + _isAnimationCompleted);
             if (DataContext is MainViewModel viewModel)
             {
                 Point imageCenter = new(Img.ActualWidth / 2 + Canvas.GetLeft(Img), Img.ActualHeight / 2 + Canvas.GetTop(Img));
@@ -137,8 +152,17 @@ namespace SpringBoxIII
                     }
                     viewModel.Angle = CalculateAngle(imageCenter, viewModel.To) - 90;
                     _isAnimationCompleted = false;
-                    Storyboard storyboard = (Storyboard)this.FindResource("MoveAnimation");
-                    storyboard.Completed += new EventHandler(handler);
+                    Storyboard storyboard = (Storyboard)this.FindResource(animationName);
+                    EventHandler wrappedHandler = null!;
+                    wrappedHandler = (s, e) =>
+                    {
+                        // 执行传入的 handler
+                        handler(s, e);
+
+                        // 完成后取消订阅
+                        storyboard.Completed -= wrappedHandler;
+                    };
+                    storyboard.Completed += wrappedHandler;
                     storyboard.Begin();
                 }
             }
@@ -155,27 +179,29 @@ namespace SpringBoxIII
                     WeightedRandom weightedRandom = new(randomEvents, weights);
                     randomEvent = weightedRandom.GetRandomValue();
                     Trace.WriteLine("randomEvent:" + randomEvent);
-                    _isEventCompleted = false;
                 }
                 if (randomEvent == 1)
                 {
+                    
+                    _moveSpeed = 250;
                     if (_isAnimationCompleted)
                     {
-                        _moveSpeed = 350;
+                        _isEventCompleted = false;
                         Random ran = new(Guid.NewGuid().GetHashCode());
                         Img.Visibility = Visibility.Visible;
-                        Task.Delay(ran.Next(350, 3500)).Wait();
                         PlayMoveAnimation("MoveAnimation", new(ran.Next(0, (int)this.ActualWidth) + 10, ran.Next(0, (int)this.ActualHeight) + 10), (s, e) =>
                         {
+                            Task.Delay(ran.Next(35, 400)).Wait();
                             _isAnimationCompleted = true;
+                            _isEventCompleted = true;
                         });
-                        _isEventCompleted = true;
                     }
                 }
                 else if (randomEvent == 2)
                 {
                     _moveSpeed = 500;
-                    Trace.WriteLine("isMovedToCursor:" + _isMovedToCursor);
+                    _isEventCompleted = false;
+                    //Trace.WriteLine("isMovedToCursor:" + _isMovedToCursor);
                     if (_isMovedToCursor)
                     {
                         Point windowPoint = new((int)Canvas.GetLeft(Img), (int)Canvas.GetTop(Img));
@@ -190,12 +216,14 @@ namespace SpringBoxIII
                         {
                             _isAnimationCompleted = true;
                         });
-                        if (Canvas.GetLeft(Img) == windowPoint.X && Canvas.GetTop(Img) == windowPoint.Y)
+                        //ToDo:修复坐标检测算法 
+
+                        if (IsNearTarget(new(Canvas.GetLeft(Img), Canvas.GetTop(Img)),windowPoint))
                         {
                             _isMovedToCursor = true;
                         }
                     }
-                    if (_isAnimationCompleted && _isMovedToCursor)
+                    else if (_isAnimationCompleted && _isMovedToCursor)
                     {
                         Random ran = new(Guid.NewGuid().GetHashCode());
                         PlayMoveAnimation("MoveAnimation", new(ran.Next(0, (int)this.ActualWidth) + 10, ran.Next(0, (int)this.ActualHeight) + 10), (s, e) =>
@@ -204,7 +232,7 @@ namespace SpringBoxIII
                             _isMovedToCursor = false;
                             _isEventCompleted = true;
                         });
-                        Task.Delay(ran.Next(350, 400)).Wait();
+                        //Task.Delay(ran.Next(35, 400)).Wait();
                     }
                 }
             }
