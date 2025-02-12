@@ -6,18 +6,15 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Kitten.png" />
-    <None Remove="KittenL.png" />
-    <None Remove="KittenR.png" />
+    <None Remove="Mouse.png" />
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Kitten.png" />
-    <Resource Include="KittenL.png" />
-    <Resource Include="KittenR.png" />
+    <Resource Include="Mouse.png" />
   </ItemGroup>
 
 </Project>

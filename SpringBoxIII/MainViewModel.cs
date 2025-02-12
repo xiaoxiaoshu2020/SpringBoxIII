@@ -5,15 +5,19 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.Animation;
+using System.Windows;
 
 namespace SpringBoxIII
 {
     class MainViewModel : INotifyPropertyChanged
     {
-        private Point _From = new(0,0);
-        private Point _To = new(0, 0);
+        private System.Windows.Point _From = new(0, 0);
+        private System.Windows.Point _To = new(0, 0);
+        private double _Angle = 0;
+        private Duration _Duration = new TimeSpan(0, 0, 0, 0, 0);
 
-        public Point From
+        public System.Windows.Point From
         {
             get { return _From; }
             set
@@ -22,7 +26,7 @@ namespace SpringBoxIII
                 OnPropertyChanged(nameof(From));
             }
         }
-        public Point To
+        public System.Windows.Point To
         {
             get { return _To; }
             set
@@ -31,8 +35,26 @@ namespace SpringBoxIII
                 OnPropertyChanged(nameof(To));
             }
         }
+        public double Angle
+        {
+            get { return _Angle; }
+            set
+            {
+                _Angle = value;
+                OnPropertyChanged(nameof(Angle));
+            }
+        }
+        public Duration Duration
+        {
+            get { return _Duration; }
+            set
+            {
+                _Duration = value;
+                OnPropertyChanged(nameof(Duration));
+            }
+        }
 
-        public  event PropertyChangedEventHandler? PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         protected void OnPropertyChanged(string propertyName)
         {
