@@ -158,7 +158,7 @@ namespace SpringBoxIII
                     {
                         viewModel.Duration = CalculatedDuration(_moveSpeed, (int)Math.Abs(viewModel.To.X - viewModel.From.X));
                     }
-                    viewModel.Angle = CalculateAngle(imageCenter, viewModel.To) - 90;
+                    viewModel.Angle = CalculateAngle(imageCenter, viewModel.To) + 90;
                     _isAnimationCompleted = false;
                     Storyboard storyboard = (Storyboard)this.FindResource(animationName);
                     EventHandler wrappedHandler = null!;
@@ -183,7 +183,7 @@ namespace SpringBoxIII
                 {
                     // 产生随机事件
                     List<int> randomEvents = [1, 2, 3, 4];
-                    List<int> weights = [8, 0, 1, 1];
+                    List<int> weights = [5, 2, 1, 2];
                     WeightedRandom weightedRandom = new(randomEvents, weights);
                     randomEvent = weightedRandom.GetRandomValue();
                     Trace.WriteLine("randomEvent:" + randomEvent);
@@ -257,11 +257,9 @@ namespace SpringBoxIII
                             {
                                 Task.Delay(ran.Next(35, 400)).Wait();
                                 _isAnimationCompleted = true;
+                                _isMovedToCursor = false;
                                 _isEventCompleted = true;
                             });
-                            _isAnimationCompleted = true;
-                            _isMovedToCursor = false;
-                            _isEventCompleted = true;
                         });
                     }
                 }

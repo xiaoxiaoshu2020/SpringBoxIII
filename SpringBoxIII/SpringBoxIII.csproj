@@ -10,10 +10,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Butterfly.png.jpg" />
     <None Remove="Mouse.png" />
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Butterfly.png.jpg" />
     <Resource Include="Mouse.png" />
   </ItemGroup>
 
