@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using System.Threading;
 
 namespace SpringBoxIII
 {
@@ -43,9 +44,35 @@ namespace SpringBoxIII
         [DllImport("user32.dll")]
         public static extern bool SetCursorPos(int x, int y);
 
+        //获取按键状态
+        [DllImport("user32.dll")]
+        public static extern short GetAsyncKeyState(int vKey);
+
+        // 引入 WinAPI 中的 SetWindowPos 函数
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern bool SetWindowPos(
+            IntPtr hWnd,                // 窗口句柄
+            IntPtr hWndInsertAfter,     // 插入的位置（这里指定下方窗口）
+            int x,                       // 窗口的 X 坐标
+            int y,                       // 窗口的 Y 坐标
+            int cx,                      // 窗口的宽度
+            int cy,                      // 窗口的高度
+            uint uFlags                  // 窗口的标志
+        );
+        // 标志：在其他窗口下方
+        public static readonly IntPtr HWND_BOTTOM = new IntPtr(1); // 将窗口设置到底部
+        // 设置窗口堆叠顺序的标志
+        public const uint SWP_NOACTIVATE = 0x0010;  // 不激活窗口
+        public const uint SWP_NOZORDER = 0x0004;     // 不更改 Z 顺序
+
+        private const int VK_LBUTTON = 0x01;  // 左键
+        private const int VK_RBUTTON = 0x02;  // 右键
+        private const int VK_MBUTTON = 0x04;  // 中键
+
         private bool _isAnimationCompleted = true;
         private bool _isMovedToCursor = false;
         private bool _isEventCompleted = true;
+        private bool _isMaskOn = false;
         private int _moveSpeed = 350;
         private int randomEvent = 0;
         //private Point _point = new Point(0, 0);
@@ -73,6 +100,7 @@ namespace SpringBoxIII
             _timer.Start();
 
             Img.Visibility = Visibility.Collapsed;
+            Mask.Visibility = Visibility.Collapsed;
         }
 
         private void Window_Deactivated(object sender, EventArgs e)
@@ -103,7 +131,7 @@ namespace SpringBoxIII
         }
         private static bool IsNearTarget(Point currentPosition, Point targetPosition)
         {
-            const double Tolerance = 100.0; // 容差值
+            const double Tolerance = 50.0; // 容差值
             double deltaX = Math.Abs(currentPosition.X - targetPosition.X);
             double deltaY = Math.Abs(currentPosition.Y - targetPosition.Y);
             Trace.WriteLine("deltaX:" + deltaX);
@@ -174,15 +202,29 @@ namespace SpringBoxIII
                 if (_isEventCompleted && _isAnimationCompleted)
                 {
                     // 产生随机事件
-                    List<int> randomEvents = [1, 2];
-                    List<int> weights = [5, 5];
+                    List<int> randomEvents = [1, 2, 3];
+                    List<int> weights = [1, 0, 3];
                     WeightedRandom weightedRandom = new(randomEvents, weights);
                     randomEvent = weightedRandom.GetRandomValue();
                     Trace.WriteLine("randomEvent:" + randomEvent);
                 }
+                if (_isMaskOn)
+                {
+                    Point imageCenter = new(Img.ActualWidth / 2 + Canvas.GetLeft(Img), Img.ActualHeight / 2 + Canvas.GetTop(Img));
+                    Mask.Visibility = Visibility.Visible;
+                    GetCursorPos(out System.Drawing.Point screenMaskPoint);
+                    var windowMaskPoint = PointFromScreen(new Point(screenMaskPoint.X, screenMaskPoint.Y)); // 转换为窗口坐标
+                    viewModel.point = new Point(windowMaskPoint.X, windowMaskPoint.Y); // 使用窗口坐标
+                    if (IsNearTarget(new(Img.ActualWidth / 2 + Canvas.GetLeft(Img), Img.ActualHeight / 2 + Canvas.GetTop(Img)), windowMaskPoint)
+                        && (GetAsyncKeyState(VK_LBUTTON) & 0x8000) != 0)
+                    {
+                        Mask.Visibility = Visibility.Collapsed;
+                        _isMaskOn = false;
+                    }
+                }
                 if (randomEvent == 1)
                 {
-                    
+
                     _moveSpeed = 250;
                     if (_isAnimationCompleted)
                     {
@@ -191,9 +233,12 @@ namespace SpringBoxIII
                         Img.Visibility = Visibility.Visible;
                         PlayMoveAnimation("MoveAnimation", new(ran.Next(0, (int)this.ActualWidth) + 10, ran.Next(0, (int)this.ActualHeight) + 10), (s, e) =>
                         {
-                            Task.Delay(ran.Next(35, 400)).Wait();
-                            _isAnimationCompleted = true;
-                            _isEventCompleted = true;
+                            Task.Run(() =>
+                            {
+                                Task.Delay(ran.Next(35, 400)).Wait();
+                                _isAnimationCompleted = true;
+                                _isEventCompleted = true;
+                            });
                         });
                     }
                 }
@@ -218,7 +263,7 @@ namespace SpringBoxIII
                         });
                         //ToDo:修复坐标检测算法 
 
-                        if (IsNearTarget(new(Canvas.GetLeft(Img), Canvas.GetTop(Img)),windowPoint))
+                        if (IsNearTarget(new(Canvas.GetLeft(Img), Canvas.GetTop(Img)), windowPoint))
                         {
                             _isMovedToCursor = true;
                         }
@@ -228,12 +273,21 @@ namespace SpringBoxIII
                         Random ran = new(Guid.NewGuid().GetHashCode());
                         PlayMoveAnimation("MoveAnimation", new(ran.Next(0, (int)this.ActualWidth) + 10, ran.Next(0, (int)this.ActualHeight) + 10), (s, e) =>
                         {
-                            Task.Delay(ran.Next(35, 400)).Wait();
+                            Task.Run(() =>
+                            {
+                                Task.Delay(ran.Next(35, 400)).Wait();
+                                _isAnimationCompleted = true;
+                                _isEventCompleted = true;
+                            });
                             _isAnimationCompleted = true;
                             _isMovedToCursor = false;
                             _isEventCompleted = true;
                         });
                     }
+                }
+                else if (randomEvent == 3)
+                {
+                    _isMaskOn = true;
                 }
             }
         }
