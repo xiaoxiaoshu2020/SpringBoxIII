@@ -55,7 +55,6 @@ namespace SpringBoxIII
         private const uint SWP_NOACTIVATE = 0x0010;
         private static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
         private static readonly IntPtr HWND_NOTOPMOST = new IntPtr(-2);
-        private static readonly IntPtr HWND_BOTTOM = new IntPtr(1);
 
         private bool _isAnimationCompleted = true;
         private int _moveSpeed = 350;
@@ -85,13 +84,8 @@ namespace SpringBoxIII
 
         private void Window_Deactivated(object sender, EventArgs e)
         {
-            //置于最前
-            //Window window = (Window)sender;
-            //window.Topmost = true;
-            // 获取窗口句柄
-            IntPtr hwnd = new WindowInteropHelper(this).Handle;
-            // 设置窗口为“第二高”层级
-            SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+            //IntPtr hwnd = new WindowInteropHelper(this).Handle;
+            //SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -101,9 +95,7 @@ namespace SpringBoxIII
             this.Top = 0.0;
             this.Width = SystemParameters.PrimaryScreenWidth;
             this.Height = SystemParameters.PrimaryScreenHeight;
-            // 获取窗口句柄
             IntPtr hwnd = new WindowInteropHelper(this).Handle;
-            // 设置窗口为“第二高”层级
             SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
         }
         private static double CalculateAngle(Point center, Point target)
@@ -176,6 +168,9 @@ namespace SpringBoxIII
         }
         private void Timer_Tick(object? sender, EventArgs e)
         {
+            IntPtr hwnd = new WindowInteropHelper(this).Handle;
+            SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+            SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
             if (_isAnimationCompleted)
             {
                 Random ran = new(Guid.NewGuid().GetHashCode());

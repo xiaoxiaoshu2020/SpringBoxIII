@@ -52,27 +52,12 @@ namespace SpringBoxIII
         private const int VK_RBUTTON = 0x02;  // 右键
         private const int VK_MBUTTON = 0x04;  // 中键
 
-        // 导入 Windows API
-        [DllImport("user32.dll")]
-        private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
-
-        // 定义常量
-        private const uint SWP_NOMOVE = 0x0002;
-        private const uint SWP_NOSIZE = 0x0001;
-        private const uint SWP_NOACTIVATE = 0x0010;
-        private static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
-        private static readonly IntPtr HWND_NOTOPMOST = new IntPtr(-2);
-        private static readonly IntPtr HWND_BOTTOM = new IntPtr(1);
-
         private bool _isAnimationCompleted = true;
         private bool _isMovedToCursor = false;
         private bool _isEventCompleted = true;
         private bool _isMaskOn = false;
         private int _moveSpeed = 350;
         private int randomEvent = 0;
-        //private Point _point = new Point(0, 0);
-
-
 
         public MainWindow()
         {
@@ -112,9 +97,6 @@ namespace SpringBoxIII
             this.Top = 0.0;
             this.Width = SystemParameters.PrimaryScreenWidth;
             this.Height = SystemParameters.PrimaryScreenHeight;
-            ChildWindow childWindow = new();
-            //childWindow.Owner = this;
-            childWindow.Show();
         }
         private static double CalculateAngle(Point center, Point target)
         {
@@ -200,8 +182,8 @@ namespace SpringBoxIII
                 if (_isEventCompleted && _isAnimationCompleted)
                 {
                     // 产生随机事件
-                    List<int> randomEvents = [1, 2, 3];
-                    List<int> weights = [1, 0, 3];
+                    List<int> randomEvents = [1, 2, 3, 4];
+                    List<int> weights = [8, 0, 1, 1];
                     WeightedRandom weightedRandom = new(randomEvents, weights);
                     randomEvent = weightedRandom.GetRandomValue();
                     Trace.WriteLine("randomEvent:" + randomEvent);
@@ -286,6 +268,11 @@ namespace SpringBoxIII
                 else if (randomEvent == 3)
                 {
                     _isMaskOn = true;
+                }
+                else if (randomEvent == 4)
+                {
+                    ChildWindow childWindow = new();
+                    childWindow.Show();
                 }
             }
         }
