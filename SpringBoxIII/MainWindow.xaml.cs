@@ -158,7 +158,7 @@ namespace SpringBoxIII
                     {
                         viewModel.Duration = CalculatedDuration(_moveSpeed, (int)Math.Abs(viewModel.To.X - viewModel.From.X));
                     }
-                    viewModel.Angle = CalculateAngle(imageCenter, viewModel.To) + 90;
+                    viewModel.Angle = CalculateAngle(imageCenter, viewModel.To) + 90;//!!!这里本来是-90，图片长宽原来是110
                     _isAnimationCompleted = false;
                     Storyboard storyboard = (Storyboard)this.FindResource(animationName);
                     EventHandler wrappedHandler = null!;
