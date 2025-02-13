@@ -48,26 +48,21 @@ namespace SpringBoxIII
         [DllImport("user32.dll")]
         public static extern short GetAsyncKeyState(int vKey);
 
-        // 引入 WinAPI 中的 SetWindowPos 函数
-        [DllImport("user32.dll", SetLastError = true)]
-        public static extern bool SetWindowPos(
-            IntPtr hWnd,                // 窗口句柄
-            IntPtr hWndInsertAfter,     // 插入的位置（这里指定下方窗口）
-            int x,                       // 窗口的 X 坐标
-            int y,                       // 窗口的 Y 坐标
-            int cx,                      // 窗口的宽度
-            int cy,                      // 窗口的高度
-            uint uFlags                  // 窗口的标志
-        );
-        // 标志：在其他窗口下方
-        public static readonly IntPtr HWND_BOTTOM = new IntPtr(1); // 将窗口设置到底部
-        // 设置窗口堆叠顺序的标志
-        public const uint SWP_NOACTIVATE = 0x0010;  // 不激活窗口
-        public const uint SWP_NOZORDER = 0x0004;     // 不更改 Z 顺序
-
         private const int VK_LBUTTON = 0x01;  // 左键
         private const int VK_RBUTTON = 0x02;  // 右键
         private const int VK_MBUTTON = 0x04;  // 中键
+
+        // 导入 Windows API
+        [DllImport("user32.dll")]
+        private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
+
+        // 定义常量
+        private const uint SWP_NOMOVE = 0x0002;
+        private const uint SWP_NOSIZE = 0x0001;
+        private const uint SWP_NOACTIVATE = 0x0010;
+        private static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
+        private static readonly IntPtr HWND_NOTOPMOST = new IntPtr(-2);
+        private static readonly IntPtr HWND_BOTTOM = new IntPtr(1);
 
         private bool _isAnimationCompleted = true;
         private bool _isMovedToCursor = false;
@@ -117,6 +112,9 @@ namespace SpringBoxIII
             this.Top = 0.0;
             this.Width = SystemParameters.PrimaryScreenWidth;
             this.Height = SystemParameters.PrimaryScreenHeight;
+            ChildWindow childWindow = new();
+            //childWindow.Owner = this;
+            childWindow.Show();
         }
         private static double CalculateAngle(Point center, Point target)
         {

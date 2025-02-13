@@ -45,6 +45,18 @@ namespace SpringBoxIII
         [DllImport("user32.dll")]
         public static extern bool SetCursorPos(int x, int y);
 
+        // 导入 Windows API
+        [DllImport("user32.dll")]
+        private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
+
+        // 定义常量
+        private const uint SWP_NOMOVE = 0x0002;
+        private const uint SWP_NOSIZE = 0x0001;
+        private const uint SWP_NOACTIVATE = 0x0010;
+        private static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
+        private static readonly IntPtr HWND_NOTOPMOST = new IntPtr(-2);
+        private static readonly IntPtr HWND_BOTTOM = new IntPtr(1);
+
         private bool _isAnimationCompleted = true;
         private int _moveSpeed = 350;
 
@@ -76,6 +88,10 @@ namespace SpringBoxIII
             //置于最前
             //Window window = (Window)sender;
             //window.Topmost = true;
+            // 获取窗口句柄
+            IntPtr hwnd = new WindowInteropHelper(this).Handle;
+            // 设置窗口为“第二高”层级
+            SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -85,6 +101,10 @@ namespace SpringBoxIII
             this.Top = 0.0;
             this.Width = SystemParameters.PrimaryScreenWidth;
             this.Height = SystemParameters.PrimaryScreenHeight;
+            // 获取窗口句柄
+            IntPtr hwnd = new WindowInteropHelper(this).Handle;
+            // 设置窗口为“第二高”层级
+            SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
         }
         private static double CalculateAngle(Point center, Point target)
         {
@@ -162,8 +182,11 @@ namespace SpringBoxIII
                 Img.Visibility = Visibility.Visible;
                 PlayMoveAnimation("MoveAnimation", new(ran.Next(0, (int)this.ActualWidth) + 10, ran.Next(0, (int)this.ActualHeight) + 10), (s, e) =>
                 {
-                    Task.Delay(ran.Next(35, 400)).Wait();
-                    _isAnimationCompleted = true;
+                    Task.Run(() =>
+                    {
+                        Task.Delay(ran.Next(35, 400)).Wait();
+                        _isAnimationCompleted = true;
+                    });
                 });
             }
         }
