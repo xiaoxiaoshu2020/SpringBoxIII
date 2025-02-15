@@ -45,7 +45,7 @@ namespace SpringBoxIII
         private bool _isAnimationCompleted = true;
         private bool _isMovedToCursor = false;
         private bool _isEventCompleted = true;
-        private bool _isMaskOn = false;
+        //private bool _isMaskOn = false;
         private int _moveSpeed = 350;
         private int randomEvent = 0;
 
@@ -63,9 +63,6 @@ namespace SpringBoxIII
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            //窗口全屏
-            //this.Left = 0.0;
-            //this.Top = 0.0;
             this.Width = SystemParameters.PrimaryScreenWidth;
             this.Height = SystemParameters.PrimaryScreenHeight;
 
@@ -89,8 +86,8 @@ namespace SpringBoxIII
             const double Tolerance = 50.0; // 容差值
             double deltaX = Math.Abs(currentPosition.X - targetPosition.X);
             double deltaY = Math.Abs(currentPosition.Y - targetPosition.Y);
-            Trace.WriteLine("deltaX:" + deltaX);
-            Trace.WriteLine("deltaY:" + deltaY);
+            //Trace.WriteLine("deltaX:" + deltaX);
+            //Trace.WriteLine("deltaY:" + deltaY);
             return deltaX < Tolerance && deltaY < Tolerance;
         }
         private static TimeSpan CalculatedDuration(double speed, double displacement)
@@ -101,7 +98,7 @@ namespace SpringBoxIII
                 totalSeconds = 0.1;
             }
             TimeSpan time = TimeSpan.FromSeconds(totalSeconds);
-            Trace.WriteLine("time:" + time);
+            //Trace.WriteLine("time:" + time);
             return time;
         }
         /// <summary>
@@ -158,11 +155,11 @@ namespace SpringBoxIII
                 if (_isEventCompleted && _isAnimationCompleted)
                 {
                     // 产生随机事件
-                    List<int> randomEvents = [1, 2];
-                    List<int> weights = [5, 2];
+                    List<int> randomEvents = [1, 2, 4];
+                    List<int> weights = [4, 1, 5];
                     WeightedRandom weightedRandom = new(randomEvents, weights);
                     randomEvent = weightedRandom.GetRandomValue();
-                    Trace.WriteLine("randomEvent:" + randomEvent);
+                    //Trace.WriteLine("randomEvent:" + randomEvent);
                 }
                 //if (_isMaskOn)
                 //{
@@ -242,11 +239,15 @@ namespace SpringBoxIII
                 //{
                 //    _isMaskOn = true;
                 //}
-                //else if (randomEvent == 4)
-                //{
-                //    ChildWindow childWindow = new();
-                //    childWindow.Show();
-                //}
+                else if (randomEvent == 4)
+                {
+                    var rat = new Rat();
+                    var mainWindow = Window.GetWindow(this) as MainWindow;
+                    if (mainWindow != null)
+                    {
+                        mainWindow.Canvas.Children.Add(rat);
+                    }
+                }
             }
         }
     }
