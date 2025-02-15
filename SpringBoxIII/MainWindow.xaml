@@ -14,7 +14,7 @@
         Loaded="Window_Loaded" ShowInTaskbar="False">
 
     <Window.DataContext>
-        <local:MainViewModel/>
+        <local:RatViewModel/>
     </Window.DataContext>
 
     <Window.Resources>
@@ -35,7 +35,8 @@
         </Storyboard>
     </Window.Resources>
     <Grid>
-        <Grid Panel.ZIndex="1">
+        <!--->
+        <Grid Panel.ZIndex="1" d:IsHidden="True">
             <Grid.Clip>
                 <CombinedGeometry GeometryCombineMode="Exclude">
                     <CombinedGeometry.Geometry1>
@@ -47,18 +48,12 @@
                 </CombinedGeometry>
             </Grid.Clip>
             <Border Background="Black" Opacity="0.5" x:Name="Mask"/>
-        </Grid>
-        <Canvas Name="Canvas" Panel.ZIndex="0">
-            <Image Source="/XLPJ.png" Name="Img" Height="80" Width="80" RenderTransformOrigin="0.5,0.5">
-                <Image.RenderTransform>
-                    <TransformGroup>
-                        <ScaleTransform/>
-                        <SkewTransform/>
-                        <RotateTransform Angle="{Binding Angle}"/>
-                        <TranslateTransform/>
-                    </TransformGroup>
-                </Image.RenderTransform>
-            </Image>
+        </Grid>-->
+
+        <Canvas Name="Canvas">
+            <local:Rat Panel.ZIndex="0"></local:Rat>
+            <local:Rat Panel.ZIndex="1"></local:Rat>
+            <local:Rat Panel.ZIndex="2"></local:Rat>
         </Canvas>
     </Grid>
 
