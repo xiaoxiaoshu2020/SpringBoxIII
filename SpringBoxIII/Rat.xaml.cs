@@ -16,6 +16,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace SpringBoxIII
 {
@@ -108,6 +109,18 @@ namespace SpringBoxIII
             //Trace.WriteLine("time:" + time);
             return time;
         }
+        private void SetImageSource(string relativePath)
+        {
+            // 创建 BitmapImage
+            BitmapImage bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.UriSource = new Uri(relativePath, UriKind.Relative); // 使用相对路径
+            bitmap.EndInit();
+
+            // 设置 Image 控件的 Source
+            Img.Source = bitmap;
+        }
+
         /// <summary>
         /// 播放移动动画
         /// </summary>
@@ -163,7 +176,7 @@ namespace SpringBoxIII
                 {
                     // 产生随机事件
                     List<int> randomEvents = [1, 2, 3, 4];
-                    List<int> weights = [10, 0, 1, 5];
+                    List<int> weights = [10, 3, 2, 5];
                     WeightedRandom weightedRandom = new(randomEvents, weights);
                     _randomEvent = weightedRandom.GetRandomValue();
                     Trace.WriteLine("randomEvent:" + _randomEvent);
@@ -178,7 +191,9 @@ namespace SpringBoxIII
                     if (IsNearTarget(new(Img.ActualWidth / 2 + Canvas.GetLeft(Img), Img.ActualHeight / 2 + Canvas.GetTop(Img)), windowMaskPoint)
                         && (GetAsyncKeyState(VK_LBUTTON) & 0x8000) != 0)
                     {
+                        SetImageSource("Rat.png");
                         _isMaskOn = false;
+                        _isThisRat = false;
                     }
                 }
                 if (_randomEvent == 1)
@@ -247,6 +262,7 @@ namespace SpringBoxIII
                     {
                         _isThisRat = true;
                         _isMaskOn = true;
+                        SetImageSource("XLPJ.png");
                     }
                 }
                 else if (_randomEvent == 4)
