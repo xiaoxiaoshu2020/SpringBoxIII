@@ -45,13 +45,13 @@ namespace SpringBoxIII
         private bool _isAnimationCompleted = true;
         private bool _isMovedToCursor = false;
         private bool _isEventCompleted = true;
-        public static bool _isMaskOn = false;
         private int _moveSpeed = 350;
         private int _randomEvent = 0;
-
+        private bool _isThisRat = false;
         private static int _ratsCount = 0;
         private int _ratID = 0;
 
+        public static bool _isMaskOn = false;
         public Dictionary<int, Rat> ratsDictionary = new();
 
         public Rat()
@@ -163,12 +163,12 @@ namespace SpringBoxIII
                 {
                     // 产生随机事件
                     List<int> randomEvents = [1, 2, 3, 4];
-                    List<int> weights = [1, 0, 1, 5];
+                    List<int> weights = [10, 0, 1, 5];
                     WeightedRandom weightedRandom = new(randomEvents, weights);
                     _randomEvent = weightedRandom.GetRandomValue();
                     Trace.WriteLine("randomEvent:" + _randomEvent);
                 }
-                if (_isMaskOn)
+                if (_isMaskOn && _isThisRat)
                 {
                     Point imageCenter = new(Img.ActualWidth / 2 + Canvas.GetLeft(Img), Img.ActualHeight / 2 + Canvas.GetTop(Img));
                     //Mask.Visibility = Visibility.Visible;
@@ -243,7 +243,11 @@ namespace SpringBoxIII
                 }
                 else if (_randomEvent == 3)
                 {
-                    _isMaskOn = true;
+                    if(!_isMaskOn)
+                    {
+                        _isThisRat = true;
+                        _isMaskOn = true;
+                    }
                 }
                 else if (_randomEvent == 4)
                 {
