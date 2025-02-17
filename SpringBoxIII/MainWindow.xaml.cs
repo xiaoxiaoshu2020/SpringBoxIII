@@ -16,6 +16,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.Threading;
 using System.Timers;
+using System.Drawing;
 
 namespace SpringBoxIII
 {
@@ -33,6 +34,10 @@ namespace SpringBoxIII
 
         [DllImport("user32", EntryPoint = "GetWindowLong")]
         private static extern uint GetWindowLong(IntPtr hwnd, int nIndex);
+
+        //获取鼠标位置
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        public static extern bool GetCursorPos(out System.Drawing.Point lpPoint);
 
         //定时器
         private DispatcherTimer _timer;
@@ -56,6 +61,8 @@ namespace SpringBoxIII
             };
             _timer.Tick += Timer_Tick;
             _timer.Start();
+
+            Mask.Visibility = Visibility.Collapsed;
         }
 
         private void Window_Deactivated(object sender, EventArgs e)
@@ -63,7 +70,6 @@ namespace SpringBoxIII
             //置于最前
             Window window = (Window)sender;
             window.Topmost = true;
-            //Mask.Visibility = Visibility.Hidden;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -77,6 +83,20 @@ namespace SpringBoxIII
 
         private void Timer_Tick(object? sender, EventArgs e)
         {
+            if (DataContext is MainViewModel mainViewModel)
+            {
+                GetCursorPos(out System.Drawing.Point screenMaskPoint);
+                var windowMaskPoint = PointFromScreen(new(screenMaskPoint.X, screenMaskPoint.Y)); // 转换为窗口坐标
+                mainViewModel.point = new(windowMaskPoint.X, windowMaskPoint.Y); // 使用窗口坐标
+                if (Rat._isMaskOn)
+                {
+                    Mask.Visibility = Visibility.Visible;
+                }
+                else if (!Rat._isMaskOn)
+                {
+                    Mask.Visibility = Visibility.Collapsed;
+                }
+            }
         }
     }
 }

@@ -14,28 +14,11 @@
         Loaded="Window_Loaded" ShowInTaskbar="False">
 
     <Window.DataContext>
-        <local:RatViewModel/>
+        <local:MainViewModel/>
     </Window.DataContext>
 
-    <Window.Resources>
-        <!--定义移动动画-->
-        <Storyboard x:Key="MoveAnimation">
-            <DoubleAnimation
-            Storyboard.TargetName="Img"
-            Storyboard.TargetProperty="(Canvas.Left)"
-            From="{Binding From.X}"
-            To="{Binding To.X }"
-            Duration="{Binding Duration}" />
-            <DoubleAnimation
-            Storyboard.TargetName="Img"
-            Storyboard.TargetProperty="(Canvas.Top)"
-            From="{Binding From.Y}"
-            To="{Binding To.Y }"
-            Duration="{Binding Duration}" />
-        </Storyboard>
-    </Window.Resources>
     <Grid>
-        <!--<Grid Panel.ZIndex="1">
+        <Grid Panel.ZIndex="1">
             <Grid.Clip>
                 <CombinedGeometry GeometryCombineMode="Exclude">
                     <CombinedGeometry.Geometry1>
@@ -46,8 +29,8 @@
                     </CombinedGeometry.Geometry2>
                 </CombinedGeometry>
             </Grid.Clip>
-            <Border Background="Black" Opacity="0.5" x:Name="Mask"/>
-        </Grid>-->
+            <Border Background="Black" Opacity="0.9" x:Name="Mask"/>
+        </Grid>
 
         <Canvas Name="Canvas">
             <local:Rat Panel.ZIndex="0"></local:Rat>

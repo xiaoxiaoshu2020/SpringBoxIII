@@ -9,7 +9,7 @@ namespace SpringBoxIII
         private System.Windows.Point _To = new(0, 0);
         private double _Angle = 0;
         private Duration _Duration = new TimeSpan(0, 0, 0, 0, 0);
-        private System.Windows.Point _point;
+        //private System.Windows.Point _point;
 
         public System.Windows.Point From
         {
@@ -47,15 +47,15 @@ namespace SpringBoxIII
                 OnPropertyChanged(nameof(Duration));
             }
         }
-        public System.Windows.Point point
-        {
-            get { return _point; }
-            set
-            {
-                _point = value;
-                OnPropertyChanged(nameof(point));
-            }
-        }
+        //public System.Windows.Point point
+        //{
+        //    get { return _point; }
+        //    set
+        //    {
+        //        _point = value;
+        //        OnPropertyChanged(nameof(point));
+        //    }
+        //}
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
