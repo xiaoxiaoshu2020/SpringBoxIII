@@ -45,12 +45,15 @@ namespace SpringBoxIII
         private bool _isAnimationCompleted = true;
         private bool _isMovedToCursor = false;
         private bool _isEventCompleted = true;
-        //private bool _isMaskOn = false;
+        public static bool _isMaskOn = false;
         private int _moveSpeed = 350;
-        private int randomEvent = 0;
+        private int _randomEvent = 0;
+
+        private static int _ratNumber = 0;
 
         public Rat()
         {
+            _ratNumber++;
             InitializeComponent();
             // 初始化定时器
             _timer = new DispatcherTimer
@@ -155,27 +158,26 @@ namespace SpringBoxIII
                 if (_isEventCompleted && _isAnimationCompleted)
                 {
                     // 产生随机事件
-                    List<int> randomEvents = [1, 2, 4];
-                    List<int> weights = [4, 1, 5];
+                    List<int> randomEvents = [1, 2, 3, 4];
+                    List<int> weights = [1, 0, 1, 5];
                     WeightedRandom weightedRandom = new(randomEvents, weights);
-                    randomEvent = weightedRandom.GetRandomValue();
-                    //Trace.WriteLine("randomEvent:" + randomEvent);
+                    _randomEvent = weightedRandom.GetRandomValue();
+                    Trace.WriteLine("randomEvent:" + _randomEvent);
                 }
-                //if (_isMaskOn)
-                //{
-                //    Point imageCenter = new(Img.ActualWidth / 2 + Canvas.GetLeft(Img), Img.ActualHeight / 2 + Canvas.GetTop(Img));
-                //    Mask.Visibility = Visibility.Visible;
-                //    GetCursorPos(out System.Drawing.Point screenMaskPoint);
-                //    var windowMaskPoint = PointFromScreen(new Point(screenMaskPoint.X, screenMaskPoint.Y)); // 转换为窗口坐标
-                //    viewModel.point = new Point(windowMaskPoint.X, windowMaskPoint.Y); // 使用窗口坐标
-                //    if (IsNearTarget(new(Img.ActualWidth / 2 + Canvas.GetLeft(Img), Img.ActualHeight / 2 + Canvas.GetTop(Img)), windowMaskPoint)
-                //        && (GetAsyncKeyState(VK_LBUTTON) & 0x8000) != 0)
-                //    {
-                //        Mask.Visibility = Visibility.Collapsed;
-                //        _isMaskOn = false;
-                //    }
-                //}
-                if (randomEvent == 1)
+                if (_isMaskOn)
+                {
+                    Point imageCenter = new(Img.ActualWidth / 2 + Canvas.GetLeft(Img), Img.ActualHeight / 2 + Canvas.GetTop(Img));
+                    //Mask.Visibility = Visibility.Visible;
+                    GetCursorPos(out System.Drawing.Point screenMaskPoint);
+                    var windowMaskPoint = PointFromScreen(new(screenMaskPoint.X, screenMaskPoint.Y)); // 转换为窗口坐标
+                    Point point = new Point(windowMaskPoint.X, windowMaskPoint.Y); // 使用窗口坐标
+                    if (IsNearTarget(new(Img.ActualWidth / 2 + Canvas.GetLeft(Img), Img.ActualHeight / 2 + Canvas.GetTop(Img)), windowMaskPoint)
+                        && (GetAsyncKeyState(VK_LBUTTON) & 0x8000) != 0)
+                    {
+                        _isMaskOn = false;
+                    }
+                }
+                if (_randomEvent == 1)
                 {
 
                     _moveSpeed = 250;
@@ -195,7 +197,7 @@ namespace SpringBoxIII
                         });
                     }
                 }
-                else if (randomEvent == 2)
+                else if (_randomEvent == 2)
                 {
                     _moveSpeed = 500;
                     _isEventCompleted = false;
@@ -235,17 +237,20 @@ namespace SpringBoxIII
                         });
                     }
                 }
-                //else if (randomEvent == 3)
-                //{
-                //    _isMaskOn = true;
-                //}
-                else if (randomEvent == 4)
+                else if (_randomEvent == 3)
                 {
-                    var rat = new Rat();
-                    var mainWindow = Window.GetWindow(this) as MainWindow;
-                    if (mainWindow != null)
+                    _isMaskOn = true;
+                }
+                else if (_randomEvent == 4)
+                {
+                    if (_ratNumber < 10)
                     {
-                        mainWindow.Canvas.Children.Add(rat);
+                        var rat = new Rat();
+                        var mainWindow = Window.GetWindow(this) as MainWindow;
+                        if (mainWindow != null)
+                        {
+                            mainWindow.Canvas.Children.Add(rat);
+                        }
                     }
                 }
             }

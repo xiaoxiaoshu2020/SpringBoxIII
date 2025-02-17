@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SpringBoxIII"
              mc:Ignorable="d" 
-             d:DesignHeight="1920" d:DesignWidth="1080" 
+             d:DesignHeight="1080" d:DesignWidth="1920" 
              Loaded="UserControl_Loaded">
     <UserControl.DataContext>
         <local:RatViewModel/>
