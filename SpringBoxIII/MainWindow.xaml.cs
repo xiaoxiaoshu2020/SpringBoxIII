@@ -54,10 +54,10 @@ namespace SpringBoxIII
 
         private bool _isAnimationCompleted = true;
         private bool _isMovedToCursor = false;
-        private bool _isEventCompleted = true;
+        private bool _isEventCompleted = false;
         private bool _isMaskOn = false;
         private int _moveSpeed = 350;
-        private int randomEvent = 0;
+        private int randomEvent = 1;
 
         public MainWindow()
         {
@@ -158,7 +158,7 @@ namespace SpringBoxIII
                     {
                         viewModel.Duration = CalculatedDuration(_moveSpeed, (int)Math.Abs(viewModel.To.X - viewModel.From.X));
                     }
-                    viewModel.Angle = CalculateAngle(imageCenter, viewModel.To) + 90;//!!!这里本来是-90，图片长宽原来是110
+                    viewModel.Angle = CalculateAngle(imageCenter, viewModel.To) - 90;//!!!这里本来是-90，图片长宽原来是110
                     _isAnimationCompleted = false;
                     Storyboard storyboard = (Storyboard)this.FindResource(animationName);
                     EventHandler wrappedHandler = null!;
@@ -183,7 +183,7 @@ namespace SpringBoxIII
                 {
                     // 产生随机事件
                     List<int> randomEvents = [1, 2, 3, 4];
-                    List<int> weights = [5, 2, 1, 2];
+                    List<int> weights = [1, 0, 2, 1];
                     WeightedRandom weightedRandom = new(randomEvents, weights);
                     randomEvent = weightedRandom.GetRandomValue();
                     Trace.WriteLine("randomEvent:" + randomEvent);
@@ -269,8 +269,11 @@ namespace SpringBoxIII
                 }
                 else if (randomEvent == 4)
                 {
-                    ChildWindow childWindow = new();
-                    childWindow.Show();
+                    if(!_isMaskOn)
+                    {
+                        ChildWindow childWindow = new();
+                        childWindow.Show();
+                    }
                 }
             }
         }
