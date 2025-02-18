@@ -152,7 +152,6 @@ namespace SpringBoxIII
                     {
                         // 执行传入的 handler
                         handler(s, e);
-
                         // 完成后取消订阅
                         storyboard.Completed -= wrappedHandler;
                     };
@@ -164,7 +163,7 @@ namespace SpringBoxIII
 
         private void Timer_Tick(object? sender, EventArgs e)
         {
-            if (DataContext is RatViewModel viewModel)
+            if (this.IsLoaded)
             {
                 if (_isEventCompleted && _isAnimationCompleted)
                 {
