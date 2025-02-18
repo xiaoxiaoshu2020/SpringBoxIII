@@ -43,14 +43,21 @@ namespace SpringBoxIII
         //定时器
         private DispatcherTimer _timer;
 
+        private struct ratState
+        {
+            public bool state;
+            public int ratID;
+        }
+
         private bool _isAnimationCompleted = true;
-        private bool _isMovedToCursor = false;
+        //private bool _isMovedToCursor = false;
         private bool _isEventCompleted = true;
         private int _moveSpeed = 350;
         private int _randomEvent = 0;
         private bool _isThisRat = false;
         private static int _ratsCount = 0;
         private int _ratID = 0;
+        private static ratState _isMovedToCursor = new() { state = false, ratID = -1 };
 
         public static bool _isMaskOn = false;
         public Dictionary<int, Rat> ratsDictionary = new();
@@ -176,7 +183,7 @@ namespace SpringBoxIII
                 {
                     // 产生随机事件
                     List<int> randomEvents = [1, 2, 3, 4];
-                    List<int> weights = [10, 3, 2, 5];
+                    List<int> weights = [3, 3, 0, 4];
                     WeightedRandom weightedRandom = new(randomEvents, weights);
                     _randomEvent = weightedRandom.GetRandomValue();
                     Trace.WriteLine("randomEvent:" + _randomEvent);
@@ -221,13 +228,17 @@ namespace SpringBoxIII
                     _moveSpeed = 500;
                     _isEventCompleted = false;
                     //Trace.WriteLine("isMovedToCursor:" + _isMovedToCursor);
-                    if (_isMovedToCursor)
+                    if (_isMovedToCursor.state && _isMovedToCursor.ratID == _ratID)
                     {
                         Point windowPoint = new((int)Canvas.GetLeft(Img), (int)Canvas.GetTop(Img));
                         var screenPoint = PointToScreen(windowPoint); // 转换为屏幕坐标
                         SetCursorPos((int)screenPoint.X + 50, (int)screenPoint.Y + 50);
                     }
-                    if (_isAnimationCompleted && !_isMovedToCursor)
+                    else if (_isMovedToCursor.state && _isMovedToCursor.ratID != _ratID)
+                    {
+                        _isEventCompleted = true;
+                    }
+                    if (_isAnimationCompleted && !_isMovedToCursor.state)
                     {
                         GetCursorPos(out System.Drawing.Point screenPoint);
                         var windowPoint = PointFromScreen(new Point(screenPoint.X, screenPoint.Y)); // 转换为窗口坐标
@@ -238,10 +249,11 @@ namespace SpringBoxIII
 
                         if (IsNearTarget(new(Canvas.GetLeft(Img), Canvas.GetTop(Img)), windowPoint))
                         {
-                            _isMovedToCursor = true;
+                            _isMovedToCursor.ratID = _ratID;
+                            _isMovedToCursor.state = true;
                         }
                     }
-                    else if (_isAnimationCompleted && _isMovedToCursor)
+                    else if (_isAnimationCompleted && _isMovedToCursor.state && _isMovedToCursor.ratID == _ratID)
                     {
                         Random ran = new(Guid.NewGuid().GetHashCode());
                         PlayMoveAnimation("MoveAnimation", new(ran.Next(0, (int)this.ActualWidth) + 10, ran.Next(0, (int)this.ActualHeight) + 10), (s, e) =>
@@ -250,7 +262,8 @@ namespace SpringBoxIII
                             {
                                 Task.Delay(ran.Next(35, 400)).Wait();
                                 _isAnimationCompleted = true;
-                                _isMovedToCursor = false;
+                                _isMovedToCursor.ratID = -1;
+                                _isMovedToCursor.state = false;
                                 _isEventCompleted = true;
                             });
                         });
@@ -258,7 +271,7 @@ namespace SpringBoxIII
                 }
                 else if (_randomEvent == 3)
                 {
-                    if(!_isMaskOn)
+                    if (!_isMaskOn)
                     {
                         _isThisRat = true;
                         _isMaskOn = true;
