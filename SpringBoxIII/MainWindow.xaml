@@ -17,23 +17,6 @@
         <local:MainViewModel/>
     </Window.DataContext>
 
-    <Window.Resources>
-        <!--定义移动动画-->
-        <Storyboard x:Key="MoveAnimation">
-            <DoubleAnimation
-            Storyboard.TargetName="Img"
-            Storyboard.TargetProperty="(Canvas.Left)"
-            From="{Binding From.X}"
-            To="{Binding To.X }"
-            Duration="{Binding Duration}" />
-            <DoubleAnimation
-            Storyboard.TargetName="Img"
-            Storyboard.TargetProperty="(Canvas.Top)"
-            From="{Binding From.Y}"
-            To="{Binding To.Y }"
-            Duration="{Binding Duration}" />
-        </Storyboard>
-    </Window.Resources>
     <Grid>
         <Grid Panel.ZIndex="1">
             <Grid.Clip>
@@ -46,19 +29,11 @@
                     </CombinedGeometry.Geometry2>
                 </CombinedGeometry>
             </Grid.Clip>
-            <Border Background="Black" Opacity="0.8" x:Name="Mask"/>
+            <Border Background="Black" Opacity="0.9" x:Name="Mask"/>
         </Grid>
-        <Canvas Name="Canvas" Panel.ZIndex="0">
-            <Image Source="/Mouse.png" Name="Img" Height="110" Width="110" RenderTransformOrigin="0.5,0.5">
-                <Image.RenderTransform>
-                    <TransformGroup>
-                        <ScaleTransform/>
-                        <SkewTransform/>
-                        <RotateTransform Angle="{Binding Angle}"/>
-                        <TranslateTransform/>
-                    </TransformGroup>
-                </Image.RenderTransform>
-            </Image>
+
+        <Canvas Name="Canvas">
+            <local:Rat Panel.ZIndex="0"></local:Rat>
         </Canvas>
     </Grid>
 

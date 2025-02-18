@@ -10,14 +10,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Butterfly.png.jpg" />
-    <None Remove="Mouse.png" />
     <None Remove="XLPJ.png" />
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Butterfly.png.jpg" />
-    <Resource Include="Mouse.png" />
+    <Resource Include="Rat.png" />
     <Resource Include="XLPJ.png" />
   </ItemGroup>
 
