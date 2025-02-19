@@ -61,8 +61,6 @@ namespace SpringBoxIII
             };
             _timer.Tick += Timer_Tick;
             _timer.Start();
-
-            Mask.Visibility = Visibility.Collapsed;
         }
 
         private void Window_Deactivated(object sender, EventArgs e)
@@ -74,6 +72,16 @@ namespace SpringBoxIII
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            Mask.Visibility = Visibility.Collapsed;
+            Rat.DisplayMask += (s, e) =>
+            {
+                Mask.Visibility = Visibility.Visible;
+            };
+            Rat.HideMask += (s, e) =>
+            {
+                Mask.Visibility = Visibility.Collapsed;
+            };
+
             //窗口全屏
             this.Left = 0.0;
             this.Top = 0.0;
@@ -88,14 +96,14 @@ namespace SpringBoxIII
                 GetCursorPos(out System.Drawing.Point screenMaskPoint);
                 var windowMaskPoint = PointFromScreen(new(screenMaskPoint.X, screenMaskPoint.Y)); // 转换为窗口坐标
                 mainViewModel.point = new(windowMaskPoint.X, windowMaskPoint.Y); // 使用窗口坐标
-                if (Rat._isMaskOn)
-                {
-                    Mask.Visibility = Visibility.Visible;
-                }
-                else if (!Rat._isMaskOn)
-                {
-                    Mask.Visibility = Visibility.Collapsed;
-                }
+                //if (Rat._isMaskOn)
+                //{
+                //    Mask.Visibility = Visibility.Visible;
+                //}
+                //else if (!Rat._isMaskOn)
+                //{
+                //    Mask.Visibility = Visibility.Collapsed;
+                //}
             }
         }
     }

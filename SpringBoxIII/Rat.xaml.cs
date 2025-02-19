@@ -16,6 +16,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace SpringBoxIII
 {
@@ -53,13 +54,31 @@ namespace SpringBoxIII
         private bool _isEventCompleted = true;
         private int _moveSpeed = 350;
         private int _randomEvent = 0;
-        private bool _isThisRat = false;
         private static int _ratsCount = 0;
         private int _ratID = 0;
         private static ratState _isMovedToCursor = new() { state = false, ratID = -1 };
+        private static ratState _isMaskOn = new() { state = false, ratID = -1 };
 
-        public static bool _isMaskOn = false;
         public Dictionary<int, Rat> ratsDictionary = new();
+
+        public static event EventHandler? DisplayMask;
+        public static event EventHandler? HideMask;
+
+        private void OnDisplayMask()
+        {
+            if(DisplayMask != null)
+            {
+                DisplayMask(this, EventArgs.Empty);
+            }
+        }
+
+        private void OnHideMask()
+        {
+            if(HideMask != null)
+            {
+                HideMask(this, EventArgs.Empty);
+            }
+        }
 
         public Rat()
         {
@@ -81,7 +100,6 @@ namespace SpringBoxIII
             this.Height = SystemParameters.PrimaryScreenHeight;
 
             Img.Visibility = Visibility.Collapsed;
-            //Mask.Visibility = Visibility.Collapsed;
         }
 
         private static double CalculateAngle(Point center, Point target)
@@ -161,6 +179,18 @@ namespace SpringBoxIII
             }
         }
 
+        private void SetImageSource(string relativePath)
+        {
+            // 创建 BitmapImage
+            BitmapImage bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.UriSource = new Uri(relativePath, UriKind.Relative); // 使用相对路径
+            bitmap.EndInit();
+
+            // 设置 Image 控件的 Source
+            Img.Source = bitmap;
+        }
+
         private void Timer_Tick(object? sender, EventArgs e)
         {
             if (this.IsLoaded)
@@ -169,12 +199,12 @@ namespace SpringBoxIII
                 {
                     // 产生随机事件
                     List<int> randomEvents = [1, 2, 3, 4];
-                    List<int> weights = [3, 3, 0, 4];
+                    List<int> weights = [3, 2, 1, 3];
                     WeightedRandom weightedRandom = new(randomEvents, weights);
                     _randomEvent = weightedRandom.GetRandomValue();
                     Trace.WriteLine("randomEvent:" + _randomEvent);
                 }
-                if (_isMaskOn && _isThisRat)
+                if (_isMaskOn.state && _isMaskOn.ratID == _ratID)
                 {
                     Point imageCenter = new(Img.ActualWidth / 2 + Canvas.GetLeft(Img), Img.ActualHeight / 2 + Canvas.GetTop(Img));
                     //Mask.Visibility = Visibility.Visible;
@@ -184,7 +214,10 @@ namespace SpringBoxIII
                     if (IsNearTarget(new(Img.ActualWidth / 2 + Canvas.GetLeft(Img), Img.ActualHeight / 2 + Canvas.GetTop(Img)), windowMaskPoint)
                         && (GetAsyncKeyState(VK_LBUTTON) & 0x8000) != 0)
                     {
-                        _isMaskOn = false;
+                        SetImageSource("Rat.png");
+                        OnHideMask();
+                        _isMaskOn.ratID = -1;
+                        _isMaskOn.state = false;
                     }
                 }
                 if (_randomEvent == 1)
@@ -255,10 +288,12 @@ namespace SpringBoxIII
                 }
                 else if (_randomEvent == 3)
                 {
-                    if (!_isMaskOn)
+                    if (!_isMaskOn.state)
                     {
-                        _isThisRat = true;
-                        _isMaskOn = true;
+                        SetImageSource("Rat1.png");
+                        OnDisplayMask();
+                        _isMaskOn.ratID = _ratID;
+                        _isMaskOn.state = true;
                     }
                 }
                 else if (_randomEvent == 4)
