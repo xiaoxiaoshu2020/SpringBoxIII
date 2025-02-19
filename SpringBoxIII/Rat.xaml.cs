@@ -209,8 +209,8 @@ namespace SpringBoxIII
                     Point imageCenter = new(Img.ActualWidth / 2 + Canvas.GetLeft(Img), Img.ActualHeight / 2 + Canvas.GetTop(Img));
                     //Mask.Visibility = Visibility.Visible;
                     GetCursorPos(out System.Drawing.Point screenMaskPoint);
-                    var windowMaskPoint = PointFromScreen(new(screenMaskPoint.X, screenMaskPoint.Y)); // 转换为窗口坐标
-                    Point point = new Point(windowMaskPoint.X, windowMaskPoint.Y); // 使用窗口坐标
+                    var windowMaskPoint = PointFromScreen(new(screenMaskPoint.X, screenMaskPoint.Y));    // 转换为窗口坐标
+                    Point point = new Point(windowMaskPoint.X, windowMaskPoint.Y);                       // 使用窗口坐标
                     if (IsNearTarget(new(Img.ActualWidth / 2 + Canvas.GetLeft(Img), Img.ActualHeight / 2 + Canvas.GetTop(Img)), windowMaskPoint)
                         && (GetAsyncKeyState(VK_LBUTTON) & 0x8000) != 0)
                     {
@@ -244,11 +244,10 @@ namespace SpringBoxIII
                 {
                     _moveSpeed = 500;
                     _isEventCompleted = false;
-                    //Trace.WriteLine("isMovedToCursor:" + _isMovedToCursor);
                     if (_isMovedToCursor.state && _isMovedToCursor.ratID == _ratID)
                     {
                         Point windowPoint = new((int)Canvas.GetLeft(Img), (int)Canvas.GetTop(Img));
-                        var screenPoint = PointToScreen(windowPoint); // 转换为屏幕坐标
+                        var screenPoint = PointToScreen(windowPoint);                               // 转换为屏幕坐标
                         SetCursorPos((int)screenPoint.X + 50, (int)screenPoint.Y + 50);
                     }
                     else if (_isMovedToCursor.state && _isMovedToCursor.ratID != _ratID)
@@ -258,7 +257,7 @@ namespace SpringBoxIII
                     if (_isAnimationCompleted && !_isMovedToCursor.state)
                     {
                         GetCursorPos(out System.Drawing.Point screenPoint);
-                        var windowPoint = PointFromScreen(new Point(screenPoint.X, screenPoint.Y)); // 转换为窗口坐标
+                        var windowPoint = PointFromScreen(new Point(screenPoint.X, screenPoint.Y));  // 转换为窗口坐标
                         PlayMoveAnimation("MoveAnimation", windowPoint, (s, e) =>
                         {
                             _isAnimationCompleted = true;
