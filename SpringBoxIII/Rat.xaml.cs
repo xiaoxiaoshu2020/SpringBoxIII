@@ -199,7 +199,7 @@ namespace SpringBoxIII
                 {
                     // 产生随机事件
                     List<int> randomEvents = [1, 2, 3, 4];
-                    List<int> weights = [3, 2, 1, 3];
+                    List<int> weights = [70, 15, 10, 5];
                     WeightedRandom weightedRandom = new(randomEvents, weights);
                     _randomEvent = weightedRandom.GetRandomValue();
                     Trace.WriteLine("randomEvent:" + _randomEvent);

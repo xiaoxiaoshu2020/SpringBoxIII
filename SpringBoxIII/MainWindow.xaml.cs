@@ -96,14 +96,6 @@ namespace SpringBoxIII
                 GetCursorPos(out System.Drawing.Point screenMaskPoint);
                 var windowMaskPoint = PointFromScreen(new(screenMaskPoint.X, screenMaskPoint.Y)); // 转换为窗口坐标
                 mainViewModel.point = new(windowMaskPoint.X, windowMaskPoint.Y); // 使用窗口坐标
-                //if (Rat._isMaskOn)
-                //{
-                //    Mask.Visibility = Visibility.Visible;
-                //}
-                //else if (!Rat._isMaskOn)
-                //{
-                //    Mask.Visibility = Visibility.Collapsed;
-                //}
             }
         }
     }
