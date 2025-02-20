@@ -32,7 +32,7 @@
                     </CombinedGeometry.Geometry2>
                 </CombinedGeometry>
             </Grid.Clip>
-            <Border Background="Black" Opacity="0.6" x:Name="Mask"/>
+            <Border Background="Black" Opacity="0.8" x:Name="Mask"/>
         </Grid>
 
         <Canvas Name="Canvas">

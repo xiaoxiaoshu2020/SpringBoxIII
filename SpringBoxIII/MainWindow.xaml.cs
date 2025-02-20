@@ -105,8 +105,8 @@ namespace SpringBoxIII
             if (DataContext is MainViewModel mainViewModel)
             {
                 GetCursorPos(out System.Drawing.Point screenMaskPoint);
-                var windowMaskPoint = PointFromScreen(new(screenMaskPoint.X, screenMaskPoint.Y)); // 转换为窗口坐标
-                mainViewModel.point = new(windowMaskPoint.X, windowMaskPoint.Y); // 使用窗口坐标
+                var windowMaskPoint = PointFromScreen(new(screenMaskPoint.X, screenMaskPoint.Y));   // 转换为窗口坐标
+                mainViewModel.point = new(windowMaskPoint.X, windowMaskPoint.Y);                    // 使用窗口坐标
             }
         }
     }
