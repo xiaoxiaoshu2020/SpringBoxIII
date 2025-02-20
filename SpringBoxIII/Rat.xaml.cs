@@ -102,6 +102,12 @@ namespace SpringBoxIII
             Img.Visibility = Visibility.Collapsed;
         }
 
+        private void UserControl_Unloaded(object sender, RoutedEventArgs e)
+        {
+            _timer.Stop();
+            _timer.Tick -= Timer_Tick;
+        }
+
         private static double CalculateAngle(Point center, Point target)
         {
             // 计算两点之间的差值

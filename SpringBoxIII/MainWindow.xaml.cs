@@ -89,6 +89,17 @@ namespace SpringBoxIII
             this.Height = SystemParameters.PrimaryScreenHeight;
         }
 
+        private void Window_Unloaded(object sender, RoutedEventArgs e)
+        {
+            _timer.Stop();
+            _timer.Tick -= Timer_Tick;
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
+
         private void Timer_Tick(object? sender, EventArgs e)
         {
             if (DataContext is MainViewModel mainViewModel)
