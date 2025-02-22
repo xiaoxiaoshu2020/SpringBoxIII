@@ -42,7 +42,7 @@ namespace SpringBoxIII
         private const int VK_LBUTTON = 0x01;  // 左键
 
         //定时器
-        private DispatcherTimer _timer;
+        private DispatcherTimer? _timer;
 
         private struct ratState
         {
@@ -130,8 +130,12 @@ namespace SpringBoxIII
 
         private void UserControl_Unloaded(object sender, RoutedEventArgs e)
         {
-            _timer.Stop();
-            _timer.Tick -= Timer_Tick;
+            if (_timer != null)
+            {
+                _timer.Stop();
+                _timer.Tick -= Timer_Tick;
+                _timer = null;
+            }
 
             _waveOut.Stop();
             _waveOut.Dispose();
@@ -222,9 +226,6 @@ namespace SpringBoxIII
             bitmap.BeginInit();
             bitmap.UriSource = new Uri(System.IO.Path.GetFullPath(filePath), UriKind.Absolute);
             bitmap.EndInit();
-
-            
-
             // 设置 Image 控件的 Source
             Img.Source = bitmap;
         }
