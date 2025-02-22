@@ -16,6 +16,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using NAudio.Wave;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace SpringBoxIII
@@ -26,7 +27,7 @@ namespace SpringBoxIII
     public partial class Rat : UserControl
     {
         //获取鼠标位置
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        [DllImport("user32.dll")]
         public static extern bool GetCursorPos(out System.Drawing.Point lpPoint);
 
         //改变鼠标位置
@@ -38,8 +39,7 @@ namespace SpringBoxIII
         public static extern short GetAsyncKeyState(int vKey);
 
         private const int VK_LBUTTON = 0x01;  // 左键
-        private const int VK_RBUTTON = 0x02;  // 右键
-        private const int VK_MBUTTON = 0x04;  // 中键
+
         //定时器
         private DispatcherTimer _timer;
 
@@ -50,7 +50,6 @@ namespace SpringBoxIII
         }
 
         private bool _isAnimationCompleted = true;
-        //private bool _isMovedToCursor = false;
         private bool _isEventCompleted = true;
         private int _moveSpeed = 350;
         private int _randomEvent = 0;
@@ -58,6 +57,10 @@ namespace SpringBoxIII
         private int _ratID = 0;
         private static ratState _isMovedToCursor = new() { state = false, ratID = -1 };
         private static ratState _isMaskOn = new() { state = false, ratID = -1 };
+        private static bool _isAudioCompleted = true;
+
+        private WaveOutEvent _waveOut;
+        private AudioFileReader _audioFileReader;
 
         public Dictionary<int, Rat> ratsDictionary = new();
 
@@ -66,7 +69,7 @@ namespace SpringBoxIII
 
         private void OnDisplayMask()
         {
-            if(DisplayMask != null)
+            if (DisplayMask != null)
             {
                 DisplayMask(this, EventArgs.Empty);
             }
@@ -74,7 +77,7 @@ namespace SpringBoxIII
 
         private void OnHideMask()
         {
-            if(HideMask != null)
+            if (HideMask != null)
             {
                 HideMask(this, EventArgs.Empty);
             }
@@ -92,6 +95,26 @@ namespace SpringBoxIII
             };
             _timer.Tick += Timer_Tick;
             _timer.Start();
+
+            _waveOut = new WaveOutEvent();
+            _audioFileReader = new AudioFileReader(Static.AudioPath);
+            _waveOut.Init(_audioFileReader);
+            _waveOut.PlaybackStopped += (s, e) =>
+            {
+                _isAudioCompleted = true;
+                if (_isAudioCompleted)
+                {
+                    _isAudioCompleted = false;
+                    _audioFileReader.Position = 0;
+                    _waveOut.Play();
+                }
+            };
+            if (_isAudioCompleted)
+            {
+                _isAudioCompleted = false;
+                _audioFileReader.Position = 0;
+                _waveOut.Play();
+            }
         }
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
@@ -106,6 +129,10 @@ namespace SpringBoxIII
         {
             _timer.Stop();
             _timer.Tick -= Timer_Tick;
+
+            _waveOut.Stop();
+            _waveOut.Dispose();
+            _audioFileReader.Dispose();
         }
 
         private static double CalculateAngle(Point center, Point target)
@@ -204,8 +231,8 @@ namespace SpringBoxIII
                 if (_isEventCompleted && _isAnimationCompleted)
                 {
                     // 产生随机事件
-                    List<int> randomEvents = [1, 2, 3, 4];
-                    List<int> weights = [70, 15, 10, 5];
+                    List<int> randomEvents = [1, 2, 3, 4, 5];
+                    List<int> weights = [50, 15, 10, 5, 20];
                     WeightedRandom weightedRandom = new(randomEvents, weights);
                     _randomEvent = weightedRandom.GetRandomValue();
                     Trace.WriteLine("randomEvent:" + _randomEvent);
@@ -268,7 +295,16 @@ namespace SpringBoxIII
                         {
                             _isAnimationCompleted = true;
                         });
-
+                        Task.Run(() =>
+                        {
+                            Random ran = new(Guid.NewGuid().GetHashCode());
+                            Task.Delay(ran.Next(5000, 8000)).Wait();
+                            if (!_isMovedToCursor.state)
+                            {
+                                _randomEvent = -1;
+                                _isEventCompleted = true;
+                            }
+                        });
                         if (IsNearTarget(new(Canvas.GetLeft(Img), Canvas.GetTop(Img)), windowPoint))
                         {
                             _isMovedToCursor.ratID = _ratID;
@@ -313,6 +349,16 @@ namespace SpringBoxIII
                             mainWindow.Canvas.Children.Add(rat);
                         }
                     }
+                }
+                else if(_randomEvent == 5)
+                {
+                    _isEventCompleted = false;
+                    Task.Run(() =>
+                    {
+                        Random ran = new(Guid.NewGuid().GetHashCode());
+                        Task.Delay(ran.Next(500, 3000)).Wait();
+                        _isEventCompleted = true;
+                    });
                 }
             }
         }

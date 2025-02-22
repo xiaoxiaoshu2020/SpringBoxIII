@@ -36,7 +36,7 @@
         </Grid>
 
         <Canvas Name="Canvas">
-            <local:Rat Panel.ZIndex="0"></local:Rat>
+            <local:Rat Panel.ZIndex="0"/>
         </Canvas>
     </Grid>
 
