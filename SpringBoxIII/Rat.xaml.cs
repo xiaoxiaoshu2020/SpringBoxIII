@@ -17,6 +17,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using NAudio.Wave;
+using System.IO;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace SpringBoxIII
@@ -109,12 +110,6 @@ namespace SpringBoxIII
                     _waveOut.Play();
                 }
             };
-            if (_isAudioCompleted)
-            {
-                _isAudioCompleted = false;
-                _audioFileReader.Position = 0;
-                _waveOut.Play();
-            }
         }
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
@@ -122,7 +117,15 @@ namespace SpringBoxIII
             this.Width = SystemParameters.PrimaryScreenWidth;
             this.Height = SystemParameters.PrimaryScreenHeight;
 
+            SetImageSource(Static.ImgPath[0]);
             Img.Visibility = Visibility.Collapsed;
+
+            if (_isAudioCompleted)
+            {
+                _isAudioCompleted = false;
+                _audioFileReader.Position = 0;
+                _waveOut.Play();
+            }
         }
 
         private void UserControl_Unloaded(object sender, RoutedEventArgs e)
@@ -212,13 +215,15 @@ namespace SpringBoxIII
             }
         }
 
-        private void SetImageSource(string relativePath)
+        private void SetImageSource(string filePath)
         {
             // 创建 BitmapImage
             BitmapImage bitmap = new BitmapImage();
             bitmap.BeginInit();
-            bitmap.UriSource = new Uri(relativePath, UriKind.Relative); // 使用相对路径
+            bitmap.UriSource = new Uri(System.IO.Path.GetFullPath(filePath), UriKind.Absolute);
             bitmap.EndInit();
+
+            
 
             // 设置 Image 控件的 Source
             Img.Source = bitmap;
@@ -247,7 +252,7 @@ namespace SpringBoxIII
                     if (IsNearTarget(new(Img.ActualWidth / 2 + Canvas.GetLeft(Img), Img.ActualHeight / 2 + Canvas.GetTop(Img)), windowMaskPoint)
                         && (GetAsyncKeyState(VK_LBUTTON) & 0x8000) != 0)
                     {
-                        SetImageSource("Rat.png");
+                        SetImageSource(@Static.ImgPath[0]);
                         OnHideMask();
                         _isMaskOn.ratID = -1;
                         _isMaskOn.state = false;
@@ -331,7 +336,7 @@ namespace SpringBoxIII
                 {
                     if (!_isMaskOn.state)
                     {
-                        SetImageSource("Rat1.png");
+                        SetImageSource(@Static.ImgPath[1]);
                         OnDisplayMask();
                         _isMaskOn.ratID = _ratID;
                         _isMaskOn.state = true;
