@@ -44,6 +44,7 @@ namespace SpringBoxIII
 
         public MainWindow()
         {
+            Static.ReadConfig();
             InitializeComponent();
             //窗口点击穿透
             this.SourceInitialized += delegate
