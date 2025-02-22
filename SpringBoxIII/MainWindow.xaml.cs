@@ -62,6 +62,9 @@ namespace SpringBoxIII
             };
             _timer.Tick += Timer_Tick;
             _timer.Start();
+
+            Rat rat = new Rat();
+            Canvas.Children.Add(rat);
         }
 
         private void Window_Deactivated(object sender, EventArgs e)
@@ -82,6 +85,11 @@ namespace SpringBoxIII
             {
                 Mask.Visibility = Visibility.Collapsed;
             };
+            Rat.AddRat += (s, e) =>
+            {
+                var rat = new Rat();
+                Canvas.Children.Add(rat);
+            };
 
             //窗口全屏
             this.Left = 0.0;
@@ -98,6 +106,10 @@ namespace SpringBoxIII
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            for (int i = 0; i < Rat._ratsCount; i++)
+            {
+                
+            }
             Application.Current.Shutdown();
         }
 

@@ -42,7 +42,7 @@ namespace SpringBoxIII
         private const int VK_LBUTTON = 0x01;  // 左键
 
         //定时器
-        private DispatcherTimer _timer;
+        private DispatcherTimer? _timer;
 
         private struct ratState
         {
@@ -54,7 +54,7 @@ namespace SpringBoxIII
         private bool _isEventCompleted = true;
         private int _moveSpeed = 350;
         private int _randomEvent = 0;
-        private static int _ratsCount = 0;
+        public static int _ratsCount = 0;
         private int _ratID = 0;
         private static ratState _isMovedToCursor = new() { state = false, ratID = -1 };
         private static ratState _isMaskOn = new() { state = false, ratID = -1 };
@@ -67,6 +67,7 @@ namespace SpringBoxIII
 
         public static event EventHandler? DisplayMask;
         public static event EventHandler? HideMask;
+        public static event EventHandler? AddRat;
 
         private void OnDisplayMask()
         {
@@ -84,10 +85,19 @@ namespace SpringBoxIII
             }
         }
 
+        private void OnAddRat()
+        {
+            if (AddRat != null)
+            {
+                AddRat(this, EventArgs.Empty);
+            }
+        }
+
         public Rat()
         {
             _ratsCount++;
             _ratID = _ratsCount;
+            ratsDictionary.Add(_ratID, this);
             InitializeComponent();
             // 初始化定时器
             _timer = new DispatcherTimer
@@ -130,8 +140,12 @@ namespace SpringBoxIII
 
         private void UserControl_Unloaded(object sender, RoutedEventArgs e)
         {
-            _timer.Stop();
-            _timer.Tick -= Timer_Tick;
+            if (_timer != null)
+            {
+                _timer.Stop();
+                _timer.Tick -= Timer_Tick;
+                _timer = null;
+            }
 
             _waveOut.Stop();
             _waveOut.Dispose();
@@ -154,8 +168,6 @@ namespace SpringBoxIII
             const double Tolerance = 50.0; // 容差值
             double deltaX = Math.Abs(currentPosition.X - targetPosition.X);
             double deltaY = Math.Abs(currentPosition.Y - targetPosition.Y);
-            //Trace.WriteLine("deltaX:" + deltaX);
-            //Trace.WriteLine("deltaY:" + deltaY);
             return deltaX < Tolerance && deltaY < Tolerance;
         }
         private static TimeSpan CalculatedDuration(double speed, double displacement)
@@ -222,9 +234,6 @@ namespace SpringBoxIII
             bitmap.BeginInit();
             bitmap.UriSource = new Uri(System.IO.Path.GetFullPath(filePath), UriKind.Absolute);
             bitmap.EndInit();
-
-            
-
             // 设置 Image 控件的 Source
             Img.Source = bitmap;
         }
@@ -237,7 +246,7 @@ namespace SpringBoxIII
                 {
                     // 产生随机事件
                     List<int> randomEvents = [1, 2, 3, 4, 5];
-                    List<int> weights = [50, 15, 10, 5, 20];
+                    List<int> weights = [60, 15, 10, 5, 10];
                     WeightedRandom weightedRandom = new(randomEvents, weights);
                     _randomEvent = weightedRandom.GetRandomValue();
                     Trace.WriteLine("randomEvent:" + _randomEvent);
@@ -344,15 +353,9 @@ namespace SpringBoxIII
                 }
                 else if (_randomEvent == 4)
                 {
-                    if (_ratsCount < 10)
+                    if (_ratsCount < Static.MaxRatCount)
                     {
-                        var rat = new Rat();
-                        ratsDictionary.Add(rat._ratID, rat);
-                        var mainWindow = Window.GetWindow(this) as MainWindow;
-                        if (mainWindow != null)
-                        {
-                            mainWindow.Canvas.Children.Add(rat);
-                        }
+                        OnAddRat();
                     }
                 }
                 else if(_randomEvent == 5)
