@@ -10,14 +10,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Rat1.png" />
-    <None Remove="XLPJ.png" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Ini" Version="9.0.2" />
+    <PackageReference Include="NAudio" Version="2.2.1" />
   </ItemGroup>
 
   <ItemGroup>
     <Resource Include="Rat.png" />
-    <Resource Include="Rat1.png" />
-    <Resource Include="XLPJ.png" />
   </ItemGroup>
 
 </Project>

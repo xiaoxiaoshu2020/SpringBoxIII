@@ -44,6 +44,7 @@ namespace SpringBoxIII
 
         public MainWindow()
         {
+            Static.ReadConfig();
             InitializeComponent();
             //窗口点击穿透
             this.SourceInitialized += delegate
@@ -61,6 +62,9 @@ namespace SpringBoxIII
             };
             _timer.Tick += Timer_Tick;
             _timer.Start();
+
+            Rat rat = new Rat();
+            Canvas.Children.Add(rat);
         }
 
         private void Window_Deactivated(object sender, EventArgs e)
@@ -81,6 +85,11 @@ namespace SpringBoxIII
             {
                 Mask.Visibility = Visibility.Collapsed;
             };
+            Rat.AddRat += (s, e) =>
+            {
+                var rat = new Rat();
+                Canvas.Children.Add(rat);
+            };
 
             //窗口全屏
             this.Left = 0.0;
@@ -89,13 +98,28 @@ namespace SpringBoxIII
             this.Height = SystemParameters.PrimaryScreenHeight;
         }
 
+        private void Window_Unloaded(object sender, RoutedEventArgs e)
+        {
+            _timer.Stop();
+            _timer.Tick -= Timer_Tick;
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            for (int i = 0; i < Rat._ratsCount; i++)
+            {
+                
+            }
+            Application.Current.Shutdown();
+        }
+
         private void Timer_Tick(object? sender, EventArgs e)
         {
             if (DataContext is MainViewModel mainViewModel)
             {
                 GetCursorPos(out System.Drawing.Point screenMaskPoint);
-                var windowMaskPoint = PointFromScreen(new(screenMaskPoint.X, screenMaskPoint.Y)); // 转换为窗口坐标
-                mainViewModel.point = new(windowMaskPoint.X, windowMaskPoint.Y); // 使用窗口坐标
+                var windowMaskPoint = PointFromScreen(new(screenMaskPoint.X, screenMaskPoint.Y));   // 转换为窗口坐标
+                mainViewModel.point = new(windowMaskPoint.X, windowMaskPoint.Y);                    // 使用窗口坐标
             }
         }
     }

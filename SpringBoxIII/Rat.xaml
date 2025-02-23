@@ -6,7 +6,8 @@
              xmlns:local="clr-namespace:SpringBoxIII"
              mc:Ignorable="d" 
              d:DesignHeight="1080" d:DesignWidth="1920" 
-             Loaded="UserControl_Loaded">
+             Loaded="UserControl_Loaded"
+             Unloaded="UserControl_Unloaded">
     <UserControl.DataContext>
         <local:RatViewModel/>
     </UserControl.DataContext>
@@ -30,7 +31,7 @@
 
     <Grid>
         <Canvas Name="Canvas" Panel.ZIndex="0">
-            <Image Source="/Rat.png" Name="Img" Height="110" Width="110" RenderTransformOrigin="0.5,0.5">
+            <Image Source="/Rat.png" Name="Img" Height="120" Width="120" RenderTransformOrigin="0.5,0.5">
                 <Image.RenderTransform>
                     <TransformGroup>
                         <ScaleTransform/>

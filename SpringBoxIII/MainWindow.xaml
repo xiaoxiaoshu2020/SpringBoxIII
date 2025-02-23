@@ -11,7 +11,10 @@
         Background="Transparent"
         WindowStyle="None"
         Deactivated="Window_Deactivated"
-        Loaded="Window_Loaded" ShowInTaskbar="False">
+        Loaded="Window_Loaded" 
+        Unloaded="Window_Unloaded"
+        Closing="Window_Closing"
+        ShowInTaskbar="False">
 
     <Window.DataContext>
         <local:MainViewModel/>
@@ -29,11 +32,11 @@
                     </CombinedGeometry.Geometry2>
                 </CombinedGeometry>
             </Grid.Clip>
-            <Border Background="Black" Opacity="0.6" x:Name="Mask"/>
+            <Border Background="Black" Opacity="0.8" x:Name="Mask"/>
         </Grid>
 
         <Canvas Name="Canvas">
-            <local:Rat Panel.ZIndex="0"></local:Rat>
+            <!--<local:Rat Panel.ZIndex="0"/>-->
         </Canvas>
     </Grid>
 
