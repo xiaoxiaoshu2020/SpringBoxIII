@@ -15,7 +15,7 @@ namespace SpringBoxIII
         {
             if (!File.Exists(iniFilePath))
             {
-                MessageBox.Show("配置文件:\""+iniFilePath+"\"不存在,已自动创建");
+                MessageBox.Show("配置文件:\"" + iniFilePath + "\"不存在,已自动创建");
                 File.WriteAllText(iniFilePath, "[Path]\n" +
                     "AudioPath0=\n" +
                     "AudioPath1=\n" +
@@ -42,8 +42,8 @@ namespace SpringBoxIII
         }
         private const string iniFilePath = "./config.ini";
 
-        public static string[]  AudioPath = ["./Rat.wav","./Rat1.wav"];
-        public static string[] ImgPath = ["./Rat.png", "./Rat1.png"];
+        public static string[] AudioPath = ["./Audio/Rat.wav", "./Audio/Rat1.wav"];
+        public static string[] ImgPath = ["./Image/Rat.png", "./Image/Rat1.png"];
         public static int MaxRatCount = 10;
     }
 }
