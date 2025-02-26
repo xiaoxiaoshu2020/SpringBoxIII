@@ -58,10 +58,10 @@ namespace SpringBoxIII
         private int _ratID = 0;
         private static ratState _isMovedToCursor = new() { state = false, ratID = -1 };
         private static ratState _isMaskOn = new() { state = false, ratID = -1 };
-        private static bool _isAudioCompleted = true;
+        private static bool[] _isAudioCompleted = [true, true];
 
-        private WaveOutEvent _waveOut;
-        private AudioFileReader _audioFileReader;
+        private WaveOutEvent[] _waveOut = new WaveOutEvent[2];
+        private AudioFileReader[] _audioFileReader = new AudioFileReader[2];
 
         public Dictionary<int, Rat> ratsDictionary = new();
 
@@ -107,18 +107,27 @@ namespace SpringBoxIII
             _timer.Tick += Timer_Tick;
             _timer.Start();
 
-            _waveOut = new WaveOutEvent();
-            _audioFileReader = new AudioFileReader(Static.AudioPath);
-            _waveOut.Init(_audioFileReader);
-            _waveOut.PlaybackStopped += (s, e) =>
+            _audioFileReader[0] = new AudioFileReader(Static.AudioPath[0]);
+            _audioFileReader[1] = new AudioFileReader(Static.AudioPath[1]);
+
+            _waveOut[0] = new WaveOutEvent();
+            _waveOut[0].Init(_audioFileReader[0]);
+            _waveOut[0].PlaybackStopped += (s, e) =>
             {
-                _isAudioCompleted = true;
-                if (_isAudioCompleted)
+                _isAudioCompleted[0] = true;
+                if (_isAudioCompleted[0])
                 {
-                    _isAudioCompleted = false;
-                    _audioFileReader.Position = 0;
-                    _waveOut.Play();
+                    _isAudioCompleted[0] = false;
+                    _audioFileReader[0].Position = 0;
+                    _waveOut[0].Play();
                 }
+            };
+            _waveOut[1] = new WaveOutEvent();
+            _waveOut[1].Init(_audioFileReader[1]);
+            _waveOut[1].PlaybackStopped += (s, e) =>
+            {
+                _audioFileReader[1].Position = 0;
+                _isAudioCompleted[1] = true;
             };
         }
 
@@ -130,11 +139,12 @@ namespace SpringBoxIII
             SetImageSource(Static.ImgPath[0]);
             Img.Visibility = Visibility.Collapsed;
 
-            if (_isAudioCompleted)
+            if (_isAudioCompleted[0])
             {
-                _isAudioCompleted = false;
-                _audioFileReader.Position = 0;
-                _waveOut.Play();
+                _isAudioCompleted[0] = false;
+                _audioFileReader[0].Position = 0;
+                _waveOut[0].Play();
+                
             }
         }
 
@@ -147,9 +157,9 @@ namespace SpringBoxIII
                 _timer = null;
             }
 
-            _waveOut.Stop();
-            _waveOut.Dispose();
-            _audioFileReader.Dispose();
+            _waveOut[0].Stop();
+            _waveOut[0].Dispose();
+            _audioFileReader[0].Dispose();
         }
 
         private static double CalculateAngle(Point center, Point target)
@@ -299,6 +309,7 @@ namespace SpringBoxIII
                     }
                     else if (_isMovedToCursor.state && _isMovedToCursor.ratID != _ratID)
                     {
+                        _waveOut[1].Stop();
                         _isEventCompleted = true;
                     }
                     if (_isAnimationCompleted && !_isMovedToCursor.state)
@@ -319,6 +330,12 @@ namespace SpringBoxIII
                                 _isEventCompleted = true;
                             }
                         });
+                        if (_isAudioCompleted[1])
+                        {
+                            _isAudioCompleted[1] = false;
+                            _audioFileReader[1].Position = 0;
+                            _waveOut[1].Play();
+                        }
                         if (IsNearTarget(new(Canvas.GetLeft(Img), Canvas.GetTop(Img)), windowPoint))
                         {
                             _isMovedToCursor.ratID = _ratID;
