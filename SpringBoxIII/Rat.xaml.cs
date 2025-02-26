@@ -309,7 +309,6 @@ namespace SpringBoxIII
                     }
                     else if (_isMovedToCursor.state && _isMovedToCursor.ratID != _ratID)
                     {
-                        _waveOut[1].Stop();
                         _isEventCompleted = true;
                     }
                     if (_isAnimationCompleted && !_isMovedToCursor.state)
@@ -319,16 +318,6 @@ namespace SpringBoxIII
                         PlayMoveAnimation("MoveAnimation", windowPoint, (s, e) =>
                         {
                             _isAnimationCompleted = true;
-                        });
-                        Task.Run(() =>
-                        {
-                            Random ran = new(Guid.NewGuid().GetHashCode());
-                            Task.Delay(ran.Next(5000, 8000)).Wait();
-                            if (!_isMovedToCursor.state)
-                            {
-                                _randomEvent = -1;
-                                _isEventCompleted = true;
-                            }
                         });
                         if (_isAudioCompleted[1])
                         {

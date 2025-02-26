@@ -1,21 +1,40 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UseWPF>true</UseWPF>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UseWPF>true</UseWPF>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Configuration.Ini" Version="9.0.2" />
-    <PackageReference Include="NAudio" Version="2.2.1" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Configuration.Ini" Version="9.0.2" />
+		<PackageReference Include="NAudio" Version="2.2.1" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Resource Include="Rat.png" />
-  </ItemGroup>
+	<ItemGroup>
+		<Resource Include="Rat.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="Image\" />
+		<Folder Include="Audio\" />
+	</ItemGroup>
+
+	<Target Name="CopyFiles" AfterTargets="Build">
+		<ItemGroup>
+			<ImageFiles Include="$(ProjectDir)Image\*.png" />
+			<AudioFiles Include="$(ProjectDir)Audio\*.wav" />
+		</ItemGroup>
+		<PropertyGroup>
+			<TargetImageSubDir>$(TargetDir)Image\</TargetImageSubDir>
+			<TargetAudioSubDir>$(TargetDir)Audio\</TargetAudioSubDir>
+		</PropertyGroup>
+		<MakeDir Directories="$(TargetSubDir)" />
+		<Copy SourceFiles="@(ImageFiles)" DestinationFolder="$(TargetImageSubDir)" />
+		<Copy SourceFiles="@(AudioFiles)" DestinationFolder="$(TargetAudioSubDir)" />
+	</Target>
 
 </Project>
