@@ -413,14 +413,17 @@ namespace SpringBoxIII
                     else
                     {
                         Task.Delay(5000).Wait();
-                    Tag1:
-                        try
+                        while (true)
                         {
-                            File.Delete(destinationFilePath);
-                        }
-                        catch (IOException)
-                        {
-                            goto Tag1;
+                            try
+                            {
+                                File.Delete(destinationFilePath);
+                                
+                                break;
+                            }
+                            catch (IOException)
+                            {
+                            }
                         }
                         _isCopied = false;
                         Img.Visibility = Visibility.Visible;
