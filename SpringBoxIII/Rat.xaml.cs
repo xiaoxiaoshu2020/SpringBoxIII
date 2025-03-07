@@ -59,6 +59,7 @@ namespace SpringBoxIII
         private static ratState _isMovedToCursor = new() { state = false, ratID = -1 };
         private static ratState _isMaskOn = new() { state = false, ratID = -1 };
         private static bool[] _isAudioCompleted = [true, true];
+        private bool _isCopied = false;
 
         private WaveOutEvent[] _waveOut = new WaveOutEvent[2];
         private AudioFileReader[] _audioFileReader = new AudioFileReader[2];
@@ -144,7 +145,7 @@ namespace SpringBoxIII
                 _isAudioCompleted[0] = false;
                 _audioFileReader[0].Position = 0;
                 _waveOut[0].Play();
-                
+
             }
         }
 
@@ -255,8 +256,8 @@ namespace SpringBoxIII
                 if (_isEventCompleted && _isAnimationCompleted)
                 {
                     // 产生随机事件
-                    List<int> randomEvents = [1, 2, 3, 4, 5];
-                    List<int> weights = [60, 15, 10, 5, 10];
+                    List<int> randomEvents = [1, 2, 3, 4, 5, 6];
+                    List<int> weights = [0, 0, 0, 0, 0, 1];
                     WeightedRandom weightedRandom = new(randomEvents, weights);
                     _randomEvent = weightedRandom.GetRandomValue();
                     Trace.WriteLine("randomEvent:" + _randomEvent);
@@ -277,6 +278,7 @@ namespace SpringBoxIII
                         _isMaskOn.state = false;
                     }
                 }
+                //随即移动
                 if (_randomEvent == 1)
                 {
 
@@ -297,6 +299,7 @@ namespace SpringBoxIII
                         });
                     }
                 }
+                //叼走鼠标
                 else if (_randomEvent == 2)
                 {
                     _moveSpeed = 500;
@@ -347,6 +350,7 @@ namespace SpringBoxIII
                         });
                     }
                 }
+                //遮罩
                 else if (_randomEvent == 3)
                 {
                     if (!_isMaskOn.state)
@@ -357,6 +361,7 @@ namespace SpringBoxIII
                         _isMaskOn.state = true;
                     }
                 }
+                //创建新耗子
                 else if (_randomEvent == 4)
                 {
                     if (_ratsCount < Static.MaxRatCount)
@@ -364,7 +369,8 @@ namespace SpringBoxIII
                         OnAddRat();
                     }
                 }
-                else if(_randomEvent == 5)
+                //待机
+                else if (_randomEvent == 5)
                 {
                     _isEventCompleted = false;
                     Task.Run(() =>
@@ -373,6 +379,54 @@ namespace SpringBoxIII
                         Task.Delay(ran.Next(500, 3000)).Wait();
                         _isEventCompleted = true;
                     });
+                }
+                else if (_randomEvent == 6)
+                {
+                    _isEventCompleted = false;
+                    Img.Visibility = Visibility.Collapsed;
+                    // 获取桌面路径
+                    string desktopPath = /*Environment.GetFolderPath(Environment.SpecialFolder.Desktop)*/"E:/";
+
+                    // 新文件夹的名称
+                    string newFolderName = "Rat'sHome";
+
+                    // 创建新文件夹的完整路径
+                    string newFolderPath = System.IO.Path.Combine(desktopPath, newFolderName);
+
+                    // 检查文件夹是否已经存在，如果不存在则创建
+                    if (!Directory.Exists(newFolderPath))
+                    {
+                        Directory.CreateDirectory(newFolderPath);
+                    }
+                    string destinationFilePath = System.IO.Path.Combine(newFolderPath, System.IO.Path.GetFileName(Static.ImgPath[0]));
+                    if (!Directory.Exists(destinationFilePath) && !_isCopied)
+                    {
+                        try
+                        {
+                            File.Copy(Static.ImgPath[0], destinationFilePath, overwrite: true);
+                        }
+                        catch (IOException)
+                        {
+                        }
+                        _isCopied = true;
+                    }
+                    else
+                    {
+                        Task.Delay(5000).Wait();
+                    Tag1:
+                        try
+                        {
+                            File.Delete(destinationFilePath);
+                        }
+                        catch (IOException)
+                        {
+                            goto Tag1;
+                        }
+                        _isCopied = false;
+                        Img.Visibility = Visibility.Visible;
+                        _isEventCompleted = true;
+
+                    }
                 }
             }
         }
