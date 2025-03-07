@@ -423,7 +423,7 @@ namespace SpringBoxIII
                             }
                             catch (IOException)
                             {
-                                Task.Delay(50【).Wait();
+                                Task.Delay(50).Wait();
                             }
                         }
                         _isCopied = false;
