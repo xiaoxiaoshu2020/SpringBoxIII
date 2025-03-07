@@ -1,24 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 using NAudio.Wave;
 using System.IO;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace SpringBoxIII
 {
@@ -44,7 +32,7 @@ namespace SpringBoxIII
         //定时器
         private DispatcherTimer? _timer;
 
-        private struct ratState
+        private struct RatState
         {
             public bool state;
             public int ratID;
@@ -54,17 +42,17 @@ namespace SpringBoxIII
         private bool _isEventCompleted = true;
         private int _moveSpeed = 350;
         private int _randomEvent = 0;
-        public static int _ratsCount = 0;
-        private int _ratID = 0;
-        private static ratState _isMovedToCursor = new() { state = false, ratID = -1 };
-        private static ratState _isMaskOn = new() { state = false, ratID = -1 };
-        private static bool[] _isAudioCompleted = [true, true];
+        private static int _ratsCount = 0;
+        private readonly int _ratID = 0;
+        private static RatState _isMovedToCursor = new() { state = false, ratID = -1 };
+        private static RatState _isMaskOn = new() { state = false, ratID = -1 };
+        private static readonly bool[] _isAudioCompleted = [true, true];
         private bool _isCopied = false;
 
-        private WaveOutEvent[] _waveOut = new WaveOutEvent[2];
-        private AudioFileReader[] _audioFileReader = new AudioFileReader[2];
+        private readonly WaveOutEvent[] _waveOut = new WaveOutEvent[2];
+        private readonly AudioFileReader[] _audioFileReader = new AudioFileReader[2];
 
-        public Dictionary<int, Rat> ratsDictionary = new();
+        public Dictionary<int, Rat> ratsDictionary = [];
 
         public static event EventHandler? DisplayMask;
         public static event EventHandler? HideMask;
@@ -241,7 +229,7 @@ namespace SpringBoxIII
         private void SetImageSource(string filePath)
         {
             // 创建 BitmapImage
-            BitmapImage bitmap = new BitmapImage();
+            BitmapImage bitmap = new();
             bitmap.BeginInit();
             bitmap.UriSource = new Uri(System.IO.Path.GetFullPath(filePath), UriKind.Absolute);
             bitmap.EndInit();
@@ -268,7 +256,7 @@ namespace SpringBoxIII
                     //Mask.Visibility = Visibility.Visible;
                     GetCursorPos(out System.Drawing.Point screenMaskPoint);
                     var windowMaskPoint = PointFromScreen(new(screenMaskPoint.X, screenMaskPoint.Y));    // 转换为窗口坐标
-                    Point point = new Point(windowMaskPoint.X, windowMaskPoint.Y);                       // 使用窗口坐标
+                    Point point = new(windowMaskPoint.X, windowMaskPoint.Y);                       // 使用窗口坐标
                     if (IsNearTarget(new(Img.ActualWidth / 2 + Canvas.GetLeft(Img), Img.ActualHeight / 2 + Canvas.GetTop(Img)), windowMaskPoint)
                         && (GetAsyncKeyState(VK_LBUTTON) & 0x8000) != 0)
                     {

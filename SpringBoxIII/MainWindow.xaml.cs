@@ -106,10 +106,6 @@ namespace SpringBoxIII
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            for (int i = 0; i < Rat._ratsCount; i++)
-            {
-                
-            }
             Application.Current.Shutdown();
         }
 
