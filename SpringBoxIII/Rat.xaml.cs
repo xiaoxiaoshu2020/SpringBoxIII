@@ -48,6 +48,7 @@ namespace SpringBoxIII
         private static RatState _isMaskOn = new() { state = false, ratID = -1 };
         private static readonly bool[] _isAudioCompleted = [true, true];
         private bool _isCopied = false;
+        private bool _isDealying = false;
 
         private readonly WaveOutEvent[] _waveOut = new WaveOutEvent[2];
         private readonly AudioFileReader[] _audioFileReader = new AudioFileReader[2];
@@ -237,7 +238,7 @@ namespace SpringBoxIII
             Img.Source = bitmap;
         }
 
-        private void Timer_Tick(object? sender, EventArgs e)
+        private async void Timer_Tick(object? sender, EventArgs e)
         {
             if (this.IsLoaded)
             {
@@ -245,7 +246,7 @@ namespace SpringBoxIII
                 {
                     // 产生随机事件
                     List<int> randomEvents = [1, 2, 3, 4, 5, 6];
-                    List<int> weights = [0, 0, 0, 0, 0, 1];
+                    List<int> weights = [10, 10, 10, 20, 10, 0];
                     WeightedRandom weightedRandom = new(randomEvents, weights);
                     _randomEvent = weightedRandom.GetRandomValue();
                     Trace.WriteLine("randomEvent:" + _randomEvent);
@@ -266,7 +267,7 @@ namespace SpringBoxIII
                         _isMaskOn.state = false;
                     }
                 }
-                //随即移动
+                //随机移动
                 if (_randomEvent == 1)
                 {
 
@@ -276,14 +277,11 @@ namespace SpringBoxIII
                         _isEventCompleted = false;
                         Random ran = new(Guid.NewGuid().GetHashCode());
                         Img.Visibility = Visibility.Visible;
-                        PlayMoveAnimation("MoveAnimation", new(ran.Next(0, (int)this.ActualWidth) + 10, ran.Next(0, (int)this.ActualHeight) + 10), (s, e) =>
+                        PlayMoveAnimation("MoveAnimation", new(ran.Next(0, (int)this.ActualWidth) + 10, ran.Next(0, (int)this.ActualHeight) + 10), async (s, e) =>
                         {
-                            Task.Run(() =>
-                            {
-                                Task.Delay(ran.Next(35, 400)).Wait();
-                                _isAnimationCompleted = true;
-                                _isEventCompleted = true;
-                            });
+                            await Task.Delay(ran.Next(40, 400));
+                            _isAnimationCompleted = true;
+                            _isEventCompleted = true;
                         });
                     }
                 }
@@ -325,16 +323,13 @@ namespace SpringBoxIII
                     else if (_isAnimationCompleted && _isMovedToCursor.state && _isMovedToCursor.ratID == _ratID)
                     {
                         Random ran = new(Guid.NewGuid().GetHashCode());
-                        PlayMoveAnimation("MoveAnimation", new(ran.Next(0, (int)this.ActualWidth) + 10, ran.Next(0, (int)this.ActualHeight) + 10), (s, e) =>
+                        PlayMoveAnimation("MoveAnimation", new(ran.Next(0, (int)this.ActualWidth) + 10, ran.Next(0, (int)this.ActualHeight) + 10), async (s, e) =>
                         {
-                            Task.Run(() =>
-                            {
-                                Task.Delay(ran.Next(35, 400)).Wait();
-                                _isAnimationCompleted = true;
-                                _isMovedToCursor.ratID = -1;
-                                _isMovedToCursor.state = false;
-                                _isEventCompleted = true;
-                            });
+                            await Task.Delay(ran.Next(35, 400));
+                            _isAnimationCompleted = true;
+                            _isMovedToCursor.ratID = -1;
+                            _isMovedToCursor.state = false;
+                            _isEventCompleted = true;
                         });
                     }
                 }
@@ -361,65 +356,72 @@ namespace SpringBoxIII
                 else if (_randomEvent == 5)
                 {
                     _isEventCompleted = false;
-                    Task.Run(() =>
-                    {
-                        Random ran = new(Guid.NewGuid().GetHashCode());
-                        Task.Delay(ran.Next(500, 3000)).Wait();
-                        _isEventCompleted = true;
-                    });
+                    Random ran = new(Guid.NewGuid().GetHashCode());
+                    await Task.Delay(ran.Next(500, 3000));
+                    _isEventCompleted = true;
                 }
-                else if (_randomEvent == 6)
-                {
-                    _isEventCompleted = false;
-                    Img.Visibility = Visibility.Collapsed;
-                    // 获取桌面路径
-                    string desktopPath = /*Environment.GetFolderPath(Environment.SpecialFolder.Desktop)*/"E:/";
+                //else if (_randomEvent == 6)
+                //{
+                //    _isEventCompleted = false;
+                //    Img.Visibility = Visibility.Collapsed;
+                //    // 获取桌面路径
+                //    string desktopPath = /*Environment.GetFolderPath(Environment.SpecialFolder.Desktop)*/"E:/";
 
-                    // 新文件夹的名称
-                    string newFolderName = "Rat'sHome";
+                //    // 新文件夹的名称
+                //    string newFolderName = "Rat'sHome";
 
-                    // 创建新文件夹的完整路径
-                    string newFolderPath = System.IO.Path.Combine(desktopPath, newFolderName);
+                //    // 创建新文件夹的完整路径
+                //    string newFolderPath = System.IO.Path.Combine(desktopPath, newFolderName);
 
-                    // 检查文件夹是否已经存在，如果不存在则创建
-                    if (!Directory.Exists(newFolderPath))
-                    {
-                        Directory.CreateDirectory(newFolderPath);
-                    }
-                    string destinationFilePath = System.IO.Path.Combine(newFolderPath, System.IO.Path.GetFileName(Static.ImgPath[0]));
-                    if (!Directory.Exists(destinationFilePath) && !_isCopied)
-                    {
-                        try
-                        {
-                            File.Copy(Static.ImgPath[0], destinationFilePath, overwrite: true);
-                        }
-                        catch (IOException)
-                        {
-                        }
-                        _isCopied = true;
-                    }
-                    else
-                    {
-                        Task.Delay(5000).Wait();
-                        while (true)
-                        {
-                            try
-                            {
-                                File.Delete(destinationFilePath);
-                                
-                                break;
-                            }
-                            catch (IOException)
-                            {
-                                Task.Delay(50).Wait();
-                            }
-                        }
-                        _isCopied = false;
-                        Img.Visibility = Visibility.Visible;
-                        _isEventCompleted = true;
+                //    // 检查文件夹是否已经存在，如果不存在则创建
+                //    if (!Directory.Exists(newFolderPath))
+                //    {
+                //        Directory.CreateDirectory(newFolderPath);
+                //    }
+                //    string destinationFilePath = Path.Combine(newFolderPath, Path.GetFileName(Static.ImgPath[0]));
+                //    if (!Directory.Exists(destinationFilePath) && !_isCopied)
+                //    {
+                //        try
+                //        {
+                //            File.Copy(Static.ImgPath[0], destinationFilePath, overwrite: true);
+                //        }
+                //        catch (IOException)
+                //        {
+                //        }
+                //        _isCopied = true;
+                //    }
+                //    else if (!Directory.Exists(destinationFilePath) && _isCopied)
+                //    {
+                //        Img.Visibility = Visibility.Visible;
+                //    }
+                //    else
+                //    {
+                //        _isDealying = true;
+                //        if (_isDealying)
+                //        {
+                //            Task.Run(() =>
+                //            {
+                //                Task.Delay(5000).Wait();
+                //                while (true)
+                //                {
+                //                    try
+                //                    {
+                //                        File.Delete(destinationFilePath);
 
-                    }
-                }
+                //                        break;
+                //                    }
+                //                    catch (IOException)
+                //                    {
+                //                        Task.Delay(50).Wait();
+                //                    }
+                //                }
+                //                _isCopied = false;
+                //                _isDealying = false;
+                //                _isEventCompleted = true;
+                //            });
+                //        }
+                //    }
+                //}
             }
         }
     }

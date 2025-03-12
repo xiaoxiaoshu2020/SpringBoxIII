@@ -40,7 +40,7 @@ namespace SpringBoxIII
         public static extern bool GetCursorPos(out System.Drawing.Point lpPoint);
 
         //定时器
-        private DispatcherTimer _timer;
+        private readonly DispatcherTimer _timer;
 
         public MainWindow()
         {
@@ -51,7 +51,7 @@ namespace SpringBoxIII
             {
                 IntPtr hwnd = new WindowInteropHelper(this).Handle;
                 uint extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
-                SetWindowLong(hwnd, GWL_EXSTYLE, extendedStyle |
+                _ = SetWindowLong(hwnd, GWL_EXSTYLE, extendedStyle |
                 WS_EX_TRANSPARENT);
             };
 
@@ -63,7 +63,7 @@ namespace SpringBoxIII
             _timer.Tick += Timer_Tick;
             _timer.Start();
 
-            Rat rat = new Rat();
+            Rat rat = new();
             Canvas.Children.Add(rat);
         }
 
