@@ -30,7 +30,7 @@ namespace SpringBoxIII
         private const int VK_LBUTTON = 0x01;  // 左键
 
         //定时器
-        private DispatcherTimer? _timer;
+        private DispatcherTimer _timer = new();
 
         private struct RatState
         {
@@ -48,7 +48,6 @@ namespace SpringBoxIII
         private static RatState _isMaskOn = new() { state = false, ratID = -1 };
         private static readonly bool[] _isAudioCompleted = [true, true];
         private bool _isCopied = false;
-        private bool _isDealying = false;
 
         private readonly WaveOutEvent[] _waveOut = new WaveOutEvent[2];
         private readonly AudioFileReader[] _audioFileReader = new AudioFileReader[2];
@@ -144,7 +143,6 @@ namespace SpringBoxIII
             {
                 _timer.Stop();
                 _timer.Tick -= Timer_Tick;
-                _timer = null;
             }
 
             _waveOut[0].Stop();
@@ -246,7 +244,7 @@ namespace SpringBoxIII
                 {
                     // 产生随机事件
                     List<int> randomEvents = [1, 2, 3, 4, 5, 6];
-                    List<int> weights = [10, 10, 10, 20, 10, 0];
+                    List<int> weights = [0, 0, 0, 20, 0, 10];
                     WeightedRandom weightedRandom = new(randomEvents, weights);
                     _randomEvent = weightedRandom.GetRandomValue();
                     Trace.WriteLine("randomEvent:" + _randomEvent);
@@ -357,72 +355,60 @@ namespace SpringBoxIII
                 {
                     _isEventCompleted = false;
                     Random ran = new(Guid.NewGuid().GetHashCode());
+                    _timer.Stop();
                     await Task.Delay(ran.Next(500, 3000));
+                    _timer.Start();
                     _isEventCompleted = true;
                 }
-                //else if (_randomEvent == 6)
-                //{
-                //    _isEventCompleted = false;
-                //    Img.Visibility = Visibility.Collapsed;
-                //    // 获取桌面路径
-                //    string desktopPath = /*Environment.GetFolderPath(Environment.SpecialFolder.Desktop)*/"E:/";
+                else if (_randomEvent == 6)
+                {
+                    _isEventCompleted = false;
+                    Img.Visibility = Visibility.Collapsed;
+                    // 获取桌面路径
+                    string desktopPath = /*Environment.GetFolderPath(Environment.SpecialFolder.Desktop)*/"E:/";
 
-                //    // 新文件夹的名称
-                //    string newFolderName = "Rat'sHome";
+                    // 新文件夹的名称
+                    string newFolderName = "Rat'sHome";
 
-                //    // 创建新文件夹的完整路径
-                //    string newFolderPath = System.IO.Path.Combine(desktopPath, newFolderName);
+                    // 创建新文件夹的完整路径
+                    string newFolderPath = System.IO.Path.Combine(desktopPath, newFolderName);
 
-                //    // 检查文件夹是否已经存在，如果不存在则创建
-                //    if (!Directory.Exists(newFolderPath))
-                //    {
-                //        Directory.CreateDirectory(newFolderPath);
-                //    }
-                //    string destinationFilePath = Path.Combine(newFolderPath, Path.GetFileName(Static.ImgPath[0]));
-                //    if (!Directory.Exists(destinationFilePath) && !_isCopied)
-                //    {
-                //        try
-                //        {
-                //            File.Copy(Static.ImgPath[0], destinationFilePath, overwrite: true);
-                //        }
-                //        catch (IOException)
-                //        {
-                //        }
-                //        _isCopied = true;
-                //    }
-                //    else if (!Directory.Exists(destinationFilePath) && _isCopied)
-                //    {
-                //        Img.Visibility = Visibility.Visible;
-                //    }
-                //    else
-                //    {
-                //        _isDealying = true;
-                //        if (_isDealying)
-                //        {
-                //            Task.Run(() =>
-                //            {
-                //                Task.Delay(5000).Wait();
-                //                while (true)
-                //                {
-                //                    try
-                //                    {
-                //                        File.Delete(destinationFilePath);
+                    // 检查文件夹是否已经存在，如果不存在则创建
+                    if (!Directory.Exists(newFolderPath))
+                    {
+                        Directory.CreateDirectory(newFolderPath);
+                    }
+                    string destinationFilePath = Path.Combine(newFolderPath, Path.GetFileNameWithoutExtension(Static.ImgPath[0]) + _ratID + ".png");
+                    if (!Directory.Exists(destinationFilePath) && !_isCopied)
+                    {
+                        try
+                        {
+                            File.Copy(Static.ImgPath[0], destinationFilePath, overwrite: true);
+                        }
+                        catch (IOException)
+                        {
+                        }
+                        _isCopied = true;
+                    }
+                    //else if (!Directory.Exists(destinationFilePath) && _isCopied)
+                    //{
+                    //    Img.Visibility = Visibility.Visible;
+                    //}
 
-                //                        break;
-                //                    }
-                //                    catch (IOException)
-                //                    {
-                //                        Task.Delay(50).Wait();
-                //                    }
-                //                }
-                //                _isCopied = false;
-                //                _isDealying = false;
-                //                _isEventCompleted = true;
-                //            });
-                //        }
-                //    }
-                //}
+                    _timer.Stop();
+                    await Task.Delay(5000);
+                    _timer.Start();
+                    //await Task.Delay(5000);
+                    File.Delete(destinationFilePath);
+                    _timer.Stop();
+                    Random ran = new(Guid.NewGuid().GetHashCode());
+                    await Task.Delay(ran.Next(30,4000));
+                    _timer.Start();
+                    _isCopied = false;
+                    _isEventCompleted = true;
+                }
             }
         }
     }
 }
+
