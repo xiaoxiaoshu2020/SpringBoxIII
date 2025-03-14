@@ -244,7 +244,7 @@ namespace SpringBoxIII
                 {
                     // 产生随机事件
                     List<int> randomEvents = [1, 2, 3, 4, 5, 6];
-                    List<int> weights = [0, 0, 0, 20, 0, 10];
+                    List<int> weights = [10, 0, 0, 20, 0, 5];
                     WeightedRandom weightedRandom = new(randomEvents, weights);
                     _randomEvent = weightedRandom.GetRandomValue();
                     Trace.WriteLine("randomEvent:" + _randomEvent);
@@ -390,11 +390,10 @@ namespace SpringBoxIII
                         }
                         _isCopied = true;
                     }
-                    //else if (!Directory.Exists(destinationFilePath) && _isCopied)
-                    //{
-                    //    Img.Visibility = Visibility.Visible;
-                    //}
-
+                    else if (!Directory.Exists(destinationFilePath) && _isCopied)
+                    {
+                        Img.Visibility = Visibility.Visible;
+                    }
                     _timer.Stop();
                     await Task.Delay(5000);
                     _timer.Start();
