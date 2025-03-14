@@ -43,7 +43,7 @@ namespace SpringBoxIII
         private int _moveSpeed = 350;
         private int _randomEvent = 0;
         private static int _ratsCount = 0;
-        private readonly int _ratID = 0;
+        public readonly int _ratID = 0;
         private static RatState _isMovedToCursor = new() { state = false, ratID = -1 };
         private static RatState _isMaskOn = new() { state = false, ratID = -1 };
         private static readonly bool[] _isAudioCompleted = [true, true];
@@ -51,8 +51,6 @@ namespace SpringBoxIII
 
         private readonly WaveOutEvent[] _waveOut = new WaveOutEvent[2];
         private readonly AudioFileReader[] _audioFileReader = new AudioFileReader[2];
-
-        public Dictionary<int, Rat> ratsDictionary = [];
 
         public static event EventHandler? DisplayMask;
         public static event EventHandler? HideMask;
@@ -86,7 +84,6 @@ namespace SpringBoxIII
         {
             _ratsCount++;
             _ratID = _ratsCount;
-            ratsDictionary.Add(_ratID, this);
             InitializeComponent();
             // 初始化定时器
             _timer = new DispatcherTimer
@@ -247,7 +244,7 @@ namespace SpringBoxIII
                     List<int> weights = [10, 0, 0, 20, 0, 5];
                     WeightedRandom weightedRandom = new(randomEvents, weights);
                     _randomEvent = weightedRandom.GetRandomValue();
-                    Trace.WriteLine("randomEvent:" + _randomEvent);
+                    //Trace.WriteLine("randomEvent:" + _randomEvent);
                 }
                 if (_isMaskOn.state && _isMaskOn.ratID == _ratID)
                 {
@@ -401,7 +398,7 @@ namespace SpringBoxIII
                     File.Delete(destinationFilePath);
                     _timer.Stop();
                     Random ran = new(Guid.NewGuid().GetHashCode());
-                    await Task.Delay(ran.Next(30,4000));
+                    await Task.Delay(ran.Next(30, 4000));
                     _timer.Start();
                     _isCopied = false;
                     _isEventCompleted = true;

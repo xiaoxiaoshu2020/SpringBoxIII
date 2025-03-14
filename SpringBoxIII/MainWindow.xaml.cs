@@ -111,6 +111,13 @@ namespace SpringBoxIII
 
         private void Timer_Tick(object? sender, EventArgs e)
         {
+            for (int i = 0; i < Canvas.Children.Count; i++)
+            {
+                if (Canvas.Children[i] is Rat rat)
+                {
+                    Trace.WriteLine("randomEvent:" + rat._ratID);
+                }
+            }
             if (DataContext is MainViewModel mainViewModel)
             {
                 GetCursorPos(out System.Drawing.Point screenMaskPoint);
