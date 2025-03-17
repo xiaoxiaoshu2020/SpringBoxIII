@@ -11,7 +11,7 @@ using System.IO;
 namespace SpringBoxIII
 {
     /// <summary>
-    /// Mouse.xaml 的交互逻辑
+    /// Rat.xaml 的交互逻辑
     /// </summary>
     public partial class Rat : UserControl
     {
@@ -40,10 +40,10 @@ namespace SpringBoxIII
 
         private bool _isAnimationCompleted = true;
         private bool _isEventCompleted = true;
-        private int _moveSpeed = 350;
+        private int _moveSpeed = 0;
         private int _randomEvent = 0;
         private static int _ratsCount = 0;
-        public readonly int _ratID = 0;
+        private readonly int _ratID = 0;
         private static RatState _isMovedToCursor = new() { state = false, ratID = -1 };
         private static RatState _isMaskOn = new() { state = false, ratID = -1 };
         private static readonly bool[] _isAudioCompleted = [true, true];
@@ -205,7 +205,7 @@ namespace SpringBoxIII
                     {
                         viewModel.Duration = CalculatedDuration(_moveSpeed, (int)Math.Abs(viewModel.To.X - viewModel.From.X));
                     }
-                    viewModel.Angle = CalculateAngle(imageCenter, viewModel.To) - 90;//!!!这里本来是-90，图片长宽原来是110
+                    viewModel.Angle = CalculateAngle(imageCenter, viewModel.To) - 90;
                     _isAnimationCompleted = false;
                     Storyboard storyboard = (Storyboard)this.FindResource(animationName);
                     EventHandler wrappedHandler = null!;
@@ -241,7 +241,7 @@ namespace SpringBoxIII
                 {
                     // 产生随机事件
                     List<int> randomEvents = [1, 2, 3, 4, 5, 6];
-                    List<int> weights = [10, 0, 0, 20, 0, 5];
+                    List<int> weights = [10, 0, 0, 0, 0, 0];
                     WeightedRandom weightedRandom = new(randomEvents, weights);
                     _randomEvent = weightedRandom.GetRandomValue();
                     //Trace.WriteLine("randomEvent:" + _randomEvent);
