@@ -38,6 +38,9 @@
         <Canvas Name="Canvas">
             <!--<local:Rat Panel.ZIndex="0"/>-->
         </Canvas>
+        <Canvas Name="CheeseCanvas">
+            <!--<local:Rat Panel.ZIndex="0"/>-->
+        </Canvas>
     </Grid>
 
 </Window>

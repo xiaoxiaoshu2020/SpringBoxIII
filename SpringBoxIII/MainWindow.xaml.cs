@@ -39,6 +39,13 @@ namespace SpringBoxIII
         [System.Runtime.InteropServices.DllImport("user32.dll")]
         public static extern bool GetCursorPos(out System.Drawing.Point lpPoint);
 
+        //获取按键状态
+        [DllImport("user32.dll")]
+        public static extern short GetAsyncKeyState(int vKey);
+
+        private const int VK_LBUTTON = 0x01;    // 左键
+        private const int VK_F = 0x46;          // F键
+
         //定时器
         private readonly DispatcherTimer _timer;
 
@@ -90,6 +97,23 @@ namespace SpringBoxIII
                 var rat = new Rat();
                 Canvas.Children.Add(rat);
             };
+            Rat.RemoveCheese += (s, e) =>
+            {
+                if (Canvas.Children.Count > 0)
+                {
+                    // 移除最后一个添加的Image
+                    var lastImage = CheeseCanvas.Children[CheeseCanvas.Children.Count - 1] as System.Windows.Controls.Image;
+                    if (lastImage != null)
+                    {
+                        CheeseCanvas.Children.Clear();
+                        //MessageBox.Show("有可移除的奶酪图片。");
+                    }
+                    else
+                    {
+                        MessageBox.Show("没有可移除的奶酪图片。");
+                    }
+                }
+            };
 
             //窗口全屏
             this.Left = 0.0;
@@ -116,6 +140,27 @@ namespace SpringBoxIII
                 GetCursorPos(out System.Drawing.Point screenMaskPoint);
                 var windowMaskPoint = PointFromScreen(new(screenMaskPoint.X, screenMaskPoint.Y));   // 转换为窗口坐标
                 mainViewModel.point = new(windowMaskPoint.X, windowMaskPoint.Y);                    // 使用窗口坐标
+            }
+            if ((GetAsyncKeyState(VK_LBUTTON) & 0x8000) != 0 && (GetAsyncKeyState(VK_F) & 0x8000) != 0)
+            {
+                GetCursorPos(out System.Drawing.Point screenMaskPoint);
+                var windowMaskPoint = PointFromScreen(new(screenMaskPoint.X, screenMaskPoint.Y));    // 转换为窗口坐标
+                System.Windows.Point point = new(windowMaskPoint.X, windowMaskPoint.Y);              // 使用窗口坐标
+                System.Windows.Controls.Image newImage = new()
+                {
+                    // 设置图片源（替换为您的图片路径）
+                    Source = new BitmapImage(new Uri(System.IO.Path.GetFullPath("./Image/Cheese.png"), UriKind.Absolute)),
+                    // 设置图片大小（可选）
+                    Width = 100,
+                    Height = 100
+                };
+                Rat.AimPoint = point; // 设置目标点
+                // 设置图片位置
+                Canvas.SetLeft(newImage, point.X - newImage.Width / 2);
+                Canvas.SetTop(newImage, point.Y - newImage.Height / 2);
+
+                // 将图片添加到Canvas
+                CheeseCanvas.Children.Add(newImage);
             }
         }
     }

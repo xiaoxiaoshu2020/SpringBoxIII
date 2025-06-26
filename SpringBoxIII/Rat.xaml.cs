@@ -1,12 +1,13 @@
-﻿using System.Diagnostics;
+﻿using NAudio.Wave;
+using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using NAudio.Wave;
-using System.IO;
 
 namespace SpringBoxIII
 {
@@ -55,6 +56,8 @@ namespace SpringBoxIII
         public static event EventHandler? DisplayMask;
         public static event EventHandler? HideMask;
         public static event EventHandler? AddRat;
+        public static event EventHandler? RemoveCheese;
+        public static Point? AimPoint = null;
 
         private void OnDisplayMask()
         {
@@ -77,6 +80,14 @@ namespace SpringBoxIII
             if (AddRat != null)
             {
                 AddRat(this, EventArgs.Empty);
+            }
+        }
+
+        private void OnRemoveCheese()
+        {
+            if (RemoveCheese != null)
+            {
+                RemoveCheese(this, EventArgs.Empty);
             }
         }
 
@@ -237,11 +248,25 @@ namespace SpringBoxIII
         {
             if (this.IsLoaded)
             {
-                if (_isEventCompleted && _isAnimationCompleted)
+                if (AimPoint != null && _isAnimationCompleted)
+                {
+                    _moveSpeed = 500;
+                    Img.Visibility = Visibility.Visible;
+                    PlayMoveAnimation("MoveAnimation", (Point)AimPoint, async (s, e) =>
+                    {
+                        Random ran = new(Guid.NewGuid().GetHashCode());
+                        await Task.Delay(ran.Next(40, 400));
+                        AimPoint = null; // 清除目标点
+                        OnRemoveCheese();
+                        _isAnimationCompleted = true;
+                        _isEventCompleted = true;
+                    });
+                }
+                else if (_isEventCompleted && _isAnimationCompleted)
                 {
                     // 产生随机事件
                     List<int> randomEvents = [1, 2, 3, 4, 5, 6];
-                    List<int> weights = [10, 0, 0, 0, 0, 0];
+                    List<int> weights = [10, 5, 2, 2, 2, 0];
                     WeightedRandom weightedRandom = new(randomEvents, weights);
                     _randomEvent = weightedRandom.GetRandomValue();
                     //Trace.WriteLine("randomEvent:" + _randomEvent);
