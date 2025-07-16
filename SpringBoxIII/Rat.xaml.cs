@@ -58,6 +58,7 @@ namespace SpringBoxIII
         public static event EventHandler? AddRat;
         public static event EventHandler? RemoveCheese;
         public static Point? AimPoint = null;
+        public static bool IsThereACheese = false;
 
         private void OnDisplayMask()
         {
@@ -248,7 +249,7 @@ namespace SpringBoxIII
         {
             if (this.IsLoaded)
             {
-                if (AimPoint != null && _isAnimationCompleted)
+                if (AimPoint != null && IsThereACheese && _isAnimationCompleted)
                 {
                     _moveSpeed = 500;
                     Img.Visibility = Visibility.Visible;
@@ -258,6 +259,7 @@ namespace SpringBoxIII
                         await Task.Delay(ran.Next(40, 400));
                         AimPoint = null; // 清除目标点
                         OnRemoveCheese();
+                        IsThereACheese = false; // 重置奶酪状态
                         _isAnimationCompleted = true;
                         _isEventCompleted = true;
                     });
@@ -265,8 +267,8 @@ namespace SpringBoxIII
                 else if (_isEventCompleted && _isAnimationCompleted)
                 {
                     // 产生随机事件
-                    List<int> randomEvents = [1, 2, 3, 4, 5, 6];
-                    List<int> weights = [10, 5, 2, 2, 2, 0];
+                    List<int> randomEvents = [1, 2, 3, 4, 5];
+                    List<int> weights = [10, 5, 2, 2, 0];
                     WeightedRandom weightedRandom = new(randomEvents, weights);
                     _randomEvent = weightedRandom.GetRandomValue();
                     //Trace.WriteLine("randomEvent:" + _randomEvent);
@@ -372,17 +374,7 @@ namespace SpringBoxIII
                         OnAddRat();
                     }
                 }
-                //待机
                 else if (_randomEvent == 5)
-                {
-                    _isEventCompleted = false;
-                    Random ran = new(Guid.NewGuid().GetHashCode());
-                    _timer.Stop();
-                    await Task.Delay(ran.Next(500, 3000));
-                    _timer.Start();
-                    _isEventCompleted = true;
-                }
-                else if (_randomEvent == 6)
                 {
                     _isEventCompleted = false;
                     Img.Visibility = Visibility.Collapsed;
