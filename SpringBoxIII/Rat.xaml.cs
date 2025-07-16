@@ -1,6 +1,7 @@
 ﻿using NAudio.Wave;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -43,12 +44,13 @@ namespace SpringBoxIII
         private bool _isEventCompleted = true;
         private int _moveSpeed = 0;
         private int _randomEvent = 0;
-        private static int _ratsCount = 0;
-        private readonly int _ratID = 0;
+        private static int _totalRatsCount = 0;
+        private readonly int _ratId = 0;
         private static RatState _isMovedToCursor = new() { state = false, ratID = -1 };
-        private static RatState _isMaskOn = new() { state = false, ratID = -1 };
+        private static RatState _isMaskActive = new() { state = false, ratID = -1 };
         private static readonly bool[] _isAudioCompleted = [true, true];
-        private bool _isCopied = false;
+        private Point targetPoint = new();
+        //private bool _isCopied = false;
 
         private readonly WaveOutEvent[] _waveOut = new WaveOutEvent[2];
         private readonly AudioFileReader[] _audioFileReader = new AudioFileReader[2];
@@ -57,8 +59,9 @@ namespace SpringBoxIII
         public static event EventHandler? HideMask;
         public static event EventHandler? AddRat;
         public static event EventHandler? RemoveCheese;
-        public static Point? AimPoint = null;
-        public static bool IsThereACheese = false;
+        //public static Point? TargetPoint = null;
+        public static List<Point> TargetPoints = [];
+        //public static bool IsThereACheese = false;
 
         private void OnDisplayMask()
         {
@@ -94,8 +97,8 @@ namespace SpringBoxIII
 
         public Rat()
         {
-            _ratsCount++;
-            _ratID = _ratsCount;
+            _totalRatsCount++;
+            _ratId = _totalRatsCount;
             InitializeComponent();
             // 初始化定时器
             _timer = new DispatcherTimer
@@ -105,11 +108,12 @@ namespace SpringBoxIII
             _timer.Tick += Timer_Tick;
             _timer.Start();
 
-            _audioFileReader[0] = new AudioFileReader(Static.AudioPath[0]);
-            _audioFileReader[1] = new AudioFileReader(Static.AudioPath[1]);
-
-            _waveOut[0] = new WaveOutEvent();
-            _waveOut[0].Init(_audioFileReader[0]);
+            for (int i = 0; i < 2; i++)
+            {
+                _audioFileReader[i] = new AudioFileReader(Static.AudioPath[i]);
+                _waveOut[i] = new WaveOutEvent();
+                _waveOut[i].Init(_audioFileReader[i]);
+            }
             _waveOut[0].PlaybackStopped += (s, e) =>
             {
                 _isAudioCompleted[0] = true;
@@ -120,8 +124,6 @@ namespace SpringBoxIII
                     _waveOut[0].Play();
                 }
             };
-            _waveOut[1] = new WaveOutEvent();
-            _waveOut[1].Init(_audioFileReader[1]);
             _waveOut[1].PlaybackStopped += (s, e) =>
             {
                 _audioFileReader[1].Position = 0;
@@ -142,7 +144,6 @@ namespace SpringBoxIII
                 _isAudioCompleted[0] = false;
                 _audioFileReader[0].Position = 0;
                 _waveOut[0].Play();
-
             }
         }
 
@@ -153,10 +154,12 @@ namespace SpringBoxIII
                 _timer.Stop();
                 _timer.Tick -= Timer_Tick;
             }
-
-            _waveOut[0].Stop();
-            _waveOut[0].Dispose();
-            _audioFileReader[0].Dispose();
+            for (int i = 0; i < 2; i++)
+            {
+                _waveOut[i].Stop();
+                _waveOut[i].Dispose();
+                _audioFileReader[i].Dispose();
+            }
         }
 
         private static double CalculateAngle(Point center, Point target)
@@ -203,7 +206,8 @@ namespace SpringBoxIII
             if (DataContext is RatViewModel viewModel)
             {
                 Point imageCenter = new(Img.ActualWidth / 2 + Canvas.GetLeft(Img), Img.ActualHeight / 2 + Canvas.GetTop(Img));
-                viewModel.From = viewModel.To;
+                viewModel.From = new Point(Canvas.GetLeft(Img), Canvas.GetTop(Img));
+                Trace.WriteLine(viewModel.From.ToString());
                 viewModel.To = To;
                 if (viewModel.To != viewModel.From)
                 {
@@ -233,6 +237,11 @@ namespace SpringBoxIII
                 }
             }
         }
+        private void StopAnimation(string animationName)
+        {
+            Storyboard storyboard = (Storyboard)this.FindResource(animationName);
+            storyboard.Stop();
+        }
 
         private void SetImageSource(string filePath)
         {
@@ -245,21 +254,26 @@ namespace SpringBoxIII
             Img.Source = bitmap;
         }
 
-        private async void Timer_Tick(object? sender, EventArgs e)
+        private void Timer_Tick(object? sender, EventArgs e)
         {
-            if (this.IsLoaded)
+            if (IsLoaded)
             {
-                if (AimPoint != null && IsThereACheese && _isAnimationCompleted)
+                if (TargetPoints.Count > 0 && _isAnimationCompleted)
                 {
                     _moveSpeed = 500;
                     Img.Visibility = Visibility.Visible;
-                    PlayMoveAnimation("MoveAnimation", (Point)AimPoint, async (s, e) =>
+                    targetPoint = TargetPoints[0];
+                    Trace.WriteLine(targetPoint);
+                    PlayMoveAnimation("MoveAnimation", targetPoint, async (s, e) =>
                     {
                         Random ran = new(Guid.NewGuid().GetHashCode());
-                        await Task.Delay(ran.Next(40, 400));
-                        AimPoint = null; // 清除目标点
-                        OnRemoveCheese();
-                        IsThereACheese = false; // 重置奶酪状态
+                        if (TargetPoints.Contains(targetPoint))
+                        {
+                            _ = TargetPoints.Remove(targetPoint); // 清除目标点
+                            OnRemoveCheese();
+                            await Task.Delay(ran.Next(40, 400));
+                        }
+                        //IsThereACheese = false; // 重置奶酪状态
                         _isAnimationCompleted = true;
                         _isEventCompleted = true;
                     });
@@ -267,13 +281,13 @@ namespace SpringBoxIII
                 else if (_isEventCompleted && _isAnimationCompleted)
                 {
                     // 产生随机事件
-                    List<int> randomEvents = [1, 2, 3, 4, 5];
-                    List<int> weights = [10, 5, 2, 2, 0];
+                    List<int> randomEvents = [1, 2, 3, 4];
+                    List<int> weights = [2, 0, 0, 4];
                     WeightedRandom weightedRandom = new(randomEvents, weights);
                     _randomEvent = weightedRandom.GetRandomValue();
                     //Trace.WriteLine("randomEvent:" + _randomEvent);
                 }
-                if (_isMaskOn.state && _isMaskOn.ratID == _ratID)
+                if (_isMaskActive.state && _isMaskActive.ratID == _ratId)
                 {
                     Point imageCenter = new(Img.ActualWidth / 2 + Canvas.GetLeft(Img), Img.ActualHeight / 2 + Canvas.GetTop(Img));
                     //Mask.Visibility = Visibility.Visible;
@@ -285,141 +299,136 @@ namespace SpringBoxIII
                     {
                         SetImageSource(@Static.ImgPath[0]);
                         OnHideMask();
-                        _isMaskOn.ratID = -1;
-                        _isMaskOn.state = false;
+                        _isMaskActive.ratID = -1;
+                        _isMaskActive.state = false;
                     }
                 }
-                //随机移动
-                if (_randomEvent == 1)
+                switch (_randomEvent)
                 {
-
-                    _moveSpeed = 250;
-                    if (_isAnimationCompleted)
-                    {
+                    case 1:
+                        _moveSpeed = 250;
+                        if (_isAnimationCompleted)
+                        {
+                            _isEventCompleted = false;
+                            Random ran = new(Guid.NewGuid().GetHashCode());
+                            Img.Visibility = Visibility.Visible;
+                            PlayMoveAnimation("MoveAnimation", new(ran.Next(0, (int)this.ActualWidth) + 10, ran.Next(0, (int)this.ActualHeight) + 10), async (s, e) =>
+                            {
+                                await Task.Delay(ran.Next(40, 400));
+                                _isAnimationCompleted = true;
+                                _isEventCompleted = true;
+                            });
+                        }
+                        break;
+                    case 2:
+                        _moveSpeed = 500;
                         _isEventCompleted = false;
-                        Random ran = new(Guid.NewGuid().GetHashCode());
-                        Img.Visibility = Visibility.Visible;
-                        PlayMoveAnimation("MoveAnimation", new(ran.Next(0, (int)this.ActualWidth) + 10, ran.Next(0, (int)this.ActualHeight) + 10), async (s, e) =>
+                        if (_isMovedToCursor.state && _isMovedToCursor.ratID == _ratId)
                         {
-                            await Task.Delay(ran.Next(40, 400));
-                            _isAnimationCompleted = true;
+                            Point windowPoint = new((int)Canvas.GetLeft(Img), (int)Canvas.GetTop(Img));
+                            var screenPoint = PointToScreen(windowPoint);                               // 转换为屏幕坐标
+                            SetCursorPos((int)screenPoint.X + 50, (int)screenPoint.Y + 50);
+                        }
+                        else if (_isMovedToCursor.state && _isMovedToCursor.ratID != _ratId)
+                        {
                             _isEventCompleted = true;
-                        });
-                    }
-                }
-                //叼走鼠标
-                else if (_randomEvent == 2)
-                {
-                    _moveSpeed = 500;
-                    _isEventCompleted = false;
-                    if (_isMovedToCursor.state && _isMovedToCursor.ratID == _ratID)
-                    {
-                        Point windowPoint = new((int)Canvas.GetLeft(Img), (int)Canvas.GetTop(Img));
-                        var screenPoint = PointToScreen(windowPoint);                               // 转换为屏幕坐标
-                        SetCursorPos((int)screenPoint.X + 50, (int)screenPoint.Y + 50);
-                    }
-                    else if (_isMovedToCursor.state && _isMovedToCursor.ratID != _ratID)
-                    {
-                        _isEventCompleted = true;
-                    }
-                    if (_isAnimationCompleted && !_isMovedToCursor.state)
-                    {
-                        GetCursorPos(out System.Drawing.Point screenPoint);
-                        var windowPoint = PointFromScreen(new Point(screenPoint.X, screenPoint.Y));  // 转换为窗口坐标
-                        PlayMoveAnimation("MoveAnimation", windowPoint, (s, e) =>
-                        {
-                            _isAnimationCompleted = true;
-                        });
-                        if (_isAudioCompleted[1])
-                        {
-                            _isAudioCompleted[1] = false;
-                            _audioFileReader[1].Position = 0;
-                            _waveOut[1].Play();
                         }
-                        if (IsNearTarget(new(Canvas.GetLeft(Img), Canvas.GetTop(Img)), windowPoint))
+                        if (_isAnimationCompleted && !_isMovedToCursor.state)
                         {
-                            _isMovedToCursor.ratID = _ratID;
-                            _isMovedToCursor.state = true;
+                            GetCursorPos(out System.Drawing.Point screenPoint);
+                            var windowPoint = PointFromScreen(new Point(screenPoint.X, screenPoint.Y));  // 转换为窗口坐标
+                            PlayMoveAnimation("MoveAnimation", windowPoint, (s, e) =>
+                            {
+                                _isAnimationCompleted = true;
+                            });
+                            if (_isAudioCompleted[1])
+                            {
+                                _isAudioCompleted[1] = false;
+                                _audioFileReader[1].Position = 0;
+                                _waveOut[1].Play();
+                            }
+                            if (IsNearTarget(new(Canvas.GetLeft(Img), Canvas.GetTop(Img)), windowPoint))
+                            {
+                                _isMovedToCursor.ratID = _ratId;
+                                _isMovedToCursor.state = true;
+                            }
                         }
-                    }
-                    else if (_isAnimationCompleted && _isMovedToCursor.state && _isMovedToCursor.ratID == _ratID)
-                    {
-                        Random ran = new(Guid.NewGuid().GetHashCode());
-                        PlayMoveAnimation("MoveAnimation", new(ran.Next(0, (int)this.ActualWidth) + 10, ran.Next(0, (int)this.ActualHeight) + 10), async (s, e) =>
+                        else if (_isAnimationCompleted && _isMovedToCursor.state && _isMovedToCursor.ratID == _ratId)
                         {
-                            await Task.Delay(ran.Next(35, 400));
-                            _isAnimationCompleted = true;
-                            _isMovedToCursor.ratID = -1;
-                            _isMovedToCursor.state = false;
-                            _isEventCompleted = true;
-                        });
-                    }
+                            Random ran = new(Guid.NewGuid().GetHashCode());
+                            PlayMoveAnimation("MoveAnimation", new(ran.Next(0, (int)this.ActualWidth) + 10, ran.Next(0, (int)this.ActualHeight) + 10), async (s, e) =>
+                            {
+                                await Task.Delay(ran.Next(35, 400));
+                                _isAnimationCompleted = true;
+                                _isMovedToCursor.ratID = -1;
+                                _isMovedToCursor.state = false;
+                                _isEventCompleted = true;
+                            });
+                        }
+                        break;
+                    case 3:
+                        if (!_isMaskActive.state)
+                        {
+                            SetImageSource(@Static.ImgPath[1]);
+                            OnDisplayMask();
+                            _isMaskActive.ratID = _ratId;
+                            _isMaskActive.state = true;
+                        }
+                        break;
+                    case 4:
+                        if (_totalRatsCount < Static.MaxRatCount)
+                        {
+                            OnAddRat();
+                        }
+                        break;
                 }
-                //遮罩
-                else if (_randomEvent == 3)
-                {
-                    if (!_isMaskOn.state)
-                    {
-                        SetImageSource(@Static.ImgPath[1]);
-                        OnDisplayMask();
-                        _isMaskOn.ratID = _ratID;
-                        _isMaskOn.state = true;
-                    }
-                }
-                //创建新耗子
-                else if (_randomEvent == 4)
-                {
-                    if (_ratsCount < Static.MaxRatCount)
-                    {
-                        OnAddRat();
-                    }
-                }
-                else if (_randomEvent == 5)
-                {
-                    _isEventCompleted = false;
-                    Img.Visibility = Visibility.Collapsed;
-                    // 获取桌面路径
-                    string desktopPath = /*Environment.GetFolderPath(Environment.SpecialFolder.Desktop)*/"E:/";
 
-                    // 新文件夹的名称
-                    string newFolderName = "Rat'sHome";
+                //else if (_randomEvent == 5)
+                //{
+                //    _isEventCompleted = false;
+                //    Img.Visibility = Visibility.Collapsed;
+                //    // 获取桌面路径
+                //    string desktopPath = /*Environment.GetFolderPath(Environment.SpecialFolder.Desktop)*/"E:/";
 
-                    // 创建新文件夹的完整路径
-                    string newFolderPath = System.IO.Path.Combine(desktopPath, newFolderName);
+                //    // 新文件夹的名称
+                //    string newFolderName = "Rat'sHome";
 
-                    // 检查文件夹是否已经存在，如果不存在则创建
-                    if (!Directory.Exists(newFolderPath))
-                    {
-                        Directory.CreateDirectory(newFolderPath);
-                    }
-                    string destinationFilePath = Path.Combine(newFolderPath, Path.GetFileNameWithoutExtension(Static.ImgPath[0]) + _ratID + ".png");
-                    if (!Directory.Exists(destinationFilePath) && !_isCopied)
-                    {
-                        try
-                        {
-                            File.Copy(Static.ImgPath[0], destinationFilePath, overwrite: true);
-                        }
-                        catch (IOException)
-                        {
-                        }
-                        _isCopied = true;
-                    }
-                    else if (!Directory.Exists(destinationFilePath) && _isCopied)
-                    {
-                        Img.Visibility = Visibility.Visible;
-                    }
-                    _timer.Stop();
-                    await Task.Delay(5000);
-                    _timer.Start();
-                    //await Task.Delay(5000);
-                    File.Delete(destinationFilePath);
-                    _timer.Stop();
-                    Random ran = new(Guid.NewGuid().GetHashCode());
-                    await Task.Delay(ran.Next(30, 4000));
-                    _timer.Start();
-                    _isCopied = false;
-                    _isEventCompleted = true;
-                }
+                //    // 创建新文件夹的完整路径
+                //    string newFolderPath = System.IO.Path.Combine(desktopPath, newFolderName);
+
+                //    // 检查文件夹是否已经存在，如果不存在则创建
+                //    if (!Directory.Exists(newFolderPath))
+                //    {
+                //        Directory.CreateDirectory(newFolderPath);
+                //    }
+                //    string destinationFilePath = Path.Combine(newFolderPath, Path.GetFileNameWithoutExtension(Static.ImgPath[0]) + _ratID + ".png");
+                //    if (!Directory.Exists(destinationFilePath) && !_isCopied)
+                //    {
+                //        try
+                //        {
+                //            File.Copy(Static.ImgPath[0], destinationFilePath, overwrite: true);
+                //        }
+                //        catch (IOException)
+                //        {
+                //        }
+                //        _isCopied = true;
+                //    }
+                //    else if (!Directory.Exists(destinationFilePath) && _isCopied)
+                //    {
+                //        Img.Visibility = Visibility.Visible;
+                //    }
+                //    _timer.Stop();
+                //    await Task.Delay(5000);
+                //    _timer.Start();
+                //    //await Task.Delay(5000);
+                //    File.Delete(destinationFilePath);
+                //    _timer.Stop();
+                //    Random ran = new(Guid.NewGuid().GetHashCode());
+                //    await Task.Delay(ran.Next(30, 4000));
+                //    _timer.Start();
+                //    _isCopied = false;
+                //    _isEventCompleted = true;
+                //}
             }
         }
     }

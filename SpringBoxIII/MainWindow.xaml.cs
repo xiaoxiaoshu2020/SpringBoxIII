@@ -54,7 +54,7 @@ namespace SpringBoxIII
             Static.ReadConfig();
             InitializeComponent();
             //窗口点击穿透
-            this.SourceInitialized += delegate
+            SourceInitialized += delegate
             {
                 IntPtr hwnd = new WindowInteropHelper(this).Handle;
                 uint extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
@@ -87,8 +87,9 @@ namespace SpringBoxIII
                     Height = 100
                 };
                 System.Windows.Point point = new(ran.Next(0, (int)this.ActualWidth) + 10, ran.Next(0, (int)this.ActualHeight) + 10);
-                Rat.AimPoint = point; // 设置目标点
-                Rat.IsThereACheese = true; // 设置奶酪存在标志
+                Rat.TargetPoints.Add(point); // 设置目标点
+                //MessageBox.Show(Rat.TargetPoints[1].X.ToString() + "," + Rat.TargetPoints[0].Y.ToString());
+                //Rat.IsThereACheese = true; // 设置奶酪存在标志
 
                 Canvas.SetLeft(newImage, point.X - newImage.Width / 2);
                 Canvas.SetTop(newImage, point.Y - newImage.Height / 2);
@@ -124,9 +125,9 @@ namespace SpringBoxIII
             };
             Rat.RemoveCheese += (s, e) =>
             {
-                if (Canvas.Children.Count > 0)
+                if (CheeseCanvas.Children.Count > 0)
                 {
-                    CheeseCanvas.Children.Clear();
+                    CheeseCanvas.Children.RemoveAt(0);
                 }
             };
 
