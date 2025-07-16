@@ -54,7 +54,7 @@ namespace SpringBoxIII
             Static.ReadConfig();
             InitializeComponent();
             //窗口点击穿透
-            this.SourceInitialized += delegate
+            SourceInitialized += delegate
             {
                 IntPtr hwnd = new WindowInteropHelper(this).Handle;
                 uint extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
@@ -76,25 +76,29 @@ namespace SpringBoxIII
             MenuWindow menu = new();
             menu.MessageSent += message =>
             {
-                Random ran = new Random();
-                //MessageBox.Show(message, "Message from MenuWindow", MessageBoxButton.OK, MessageBoxImage.Information);
-                System.Windows.Controls.Image newImage = new()
+                if (message == "Feed")
                 {
-                    // 设置图片源
-                    Source = new BitmapImage(new Uri(System.IO.Path.GetFullPath("./Image/Cheese.png"), UriKind.Absolute)),
-                    // 设置图片大小
-                    Width = 100,
-                    Height = 100
-                };
-                System.Windows.Point point = new(ran.Next(0, (int)this.ActualWidth) + 10, ran.Next(0, (int)this.ActualHeight) + 10);
-                Rat.AimPoint = point; // 设置目标点
-                Rat.IsThereACheese = true; // 设置奶酪存在标志
-
-                Canvas.SetLeft(newImage, point.X - newImage.Width / 2);
-                Canvas.SetTop(newImage, point.Y - newImage.Height / 2);
-
-                // 将图片添加到Canvas
-                CheeseCanvas.Children.Add(newImage);
+                    Random ran = new Random();
+                    System.Windows.Controls.Image newImage = new()
+                    {
+                        // 设置图片源
+                        Source = new BitmapImage(new Uri(System.IO.Path.GetFullPath("./Image/Cheese.png"), UriKind.Absolute)),
+                        // 设置图片大小
+                        Width = 100,
+                        Height = 100
+                    };
+                    System.Windows.Point point = new(ran.Next(0, (int)this.ActualWidth) + 10, ran.Next(0, (int)this.ActualHeight) + 10);
+                    Rat.TargetPoints.Add(point); // 设置目标点
+                    Canvas.SetLeft(newImage, point.X - newImage.Width / 2);
+                    Canvas.SetTop(newImage, point.Y - newImage.Height / 2);
+                    // 将图片添加到Canvas
+                    CheeseCanvas.Children.Add(newImage);
+                }
+                else if (message == "ClearAllCheese")
+                {
+                    CheeseCanvas.Children.Clear();
+                    Rat.TargetPoints.Clear(); // 清除所有目标点
+                }
             };
             menu.Show();
         }
@@ -124,9 +128,9 @@ namespace SpringBoxIII
             };
             Rat.RemoveCheese += (s, e) =>
             {
-                if (Canvas.Children.Count > 0)
+                if (CheeseCanvas.Children.Count > 0)
                 {
-                    CheeseCanvas.Children.Clear();
+                    CheeseCanvas.Children.RemoveAt(0);
                 }
             };
 
@@ -156,30 +160,6 @@ namespace SpringBoxIII
                 var windowMaskPoint = PointFromScreen(new(screenMaskPoint.X, screenMaskPoint.Y));   // 转换为窗口坐标
                 mainViewModel.point = new(windowMaskPoint.X, windowMaskPoint.Y);                    // 使用窗口坐标
             }
-            //if ((GetAsyncKeyState(VK_LBUTTON) & 0x8000) != 0 && (GetAsyncKeyState(VK_F) & 0x8000) != 0 && !Rat.IsThereACheese)
-            //{
-            //    GetCursorPos(out System.Drawing.Point screenMaskPoint);
-            //    var windowMaskPoint = PointFromScreen(new(screenMaskPoint.X, screenMaskPoint.Y));    // 转换为窗口坐标
-            //    System.Windows.Point point = new(windowMaskPoint.X, windowMaskPoint.Y);              // 使用窗口坐标
-            //    System.Windows.Controls.Image newImage = new()
-            //    {
-            //        // 设置图片源
-            //        Source = new BitmapImage(new Uri(System.IO.Path.GetFullPath("./Image/Cheese.png"), UriKind.Absolute)),
-            //        // 设置图片大小
-            //        Width = 100,
-            //        Height = 100
-            //    };
-            //    Rat.AimPoint = point; // 设置目标点
-            //    Rat.IsThereACheese = true; // 设置奶酪存在标志
-            //    // 设置图片位置
-            //    Canvas.SetLeft(newImage, point.X - newImage.Width / 2);
-            //    Canvas.SetTop(newImage, point.Y - newImage.Height / 2);
-
-            //    // 将图片添加到Canvas
-            //    CheeseCanvas.Children.Add(newImage);
-
-
-            //}
         }
     }
 }

@@ -5,9 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SpringBoxIII"
         mc:Ignorable="d"
-        Title="MenuWindow" Height="66" Width="115">
+        Title="MenuWindow" Height="135" Width="194">
     <Grid>
         <Button Content="Feed" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Click="Button_Click"/>
+        <Button Content="Exit" HorizontalAlignment="Left" Margin="54,10,0,0" VerticalAlignment="Top" Click="Button_Click_1"/>
+        <Button Content="ClearAllCheese" HorizontalAlignment="Left" Margin="10,34,0,0" VerticalAlignment="Top" Click="Button_Click_2"/>
 
     </Grid>
 </Window>

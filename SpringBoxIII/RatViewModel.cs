@@ -5,13 +5,13 @@ namespace SpringBoxIII
 {
     class RatViewModel : INotifyPropertyChanged
     {
-        private System.Windows.Point _From = new(0, 0);
-        private System.Windows.Point _To = new(0, 0);
+        private Point _From = new(0, 0);
+        private Point _To = new(0, 0);
         private double _Angle = 0;
         private Duration _Duration = new TimeSpan(0, 0, 0, 0, 0);
-        //private System.Windows.Point _point;
+        private Point _ImgPosition = new(0, 0);
 
-        public System.Windows.Point From
+        public Point From
         {
             get { return _From; }
             set
@@ -20,7 +20,7 @@ namespace SpringBoxIII
                 OnPropertyChanged(nameof(From));
             }
         }
-        public System.Windows.Point To
+        public Point To
         {
             get { return _To; }
             set
@@ -47,15 +47,15 @@ namespace SpringBoxIII
                 OnPropertyChanged(nameof(Duration));
             }
         }
-        //public System.Windows.Point point
-        //{
-        //    get { return _point; }
-        //    set
-        //    {
-        //        _point = value;
-        //        OnPropertyChanged(nameof(point));
-        //    }
-        //}
+        public Point ImgPosition
+        {
+            get { return _ImgPosition; }
+            set
+            {
+                _ImgPosition = value;
+                OnPropertyChanged(nameof(ImgPosition));
+            }
+        }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
