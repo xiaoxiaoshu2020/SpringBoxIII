@@ -233,11 +233,6 @@ namespace SpringBoxIII
                 }
             }
         }
-        private void StopAnimation(string animationName)
-        {
-            Storyboard storyboard = (Storyboard)this.FindResource(animationName);
-            storyboard.Stop();
-        }
 
         private void SetImageSource(string filePath)
         {
@@ -285,7 +280,6 @@ namespace SpringBoxIII
                 if (_isMaskActive.state && _isMaskActive.ratId == _ratId)
                 {
                     Point imageCenter = new(Img.ActualWidth / 2 + Canvas.GetLeft(Img), Img.ActualHeight / 2 + Canvas.GetTop(Img));
-                    //Mask.Visibility = Visibility.Visible;
                     GetCursorPos(out System.Drawing.Point screenMaskPoint);
                     var windowMaskPoint = PointFromScreen(new(screenMaskPoint.X, screenMaskPoint.Y));    // 转换为窗口坐标
                     Point point = new(windowMaskPoint.X, windowMaskPoint.Y);                       // 使用窗口坐标
@@ -378,12 +372,9 @@ namespace SpringBoxIII
                         }
                         break;
                 }
-                    _timer.Start();
-                    _isCopied = false;
-                    _isEventCompleted = true;
-                }
             }
         }
     }
 }
+
 
