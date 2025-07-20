@@ -378,12 +378,9 @@ namespace SpringBoxIII
                         }
                         break;
                 }
-                    _timer.Start();
-                    _isCopied = false;
-                    _isEventCompleted = true;
-                }
             }
         }
     }
 }
+
 
