@@ -272,7 +272,7 @@ namespace SpringBoxIII
                 {
                     // 产生随机事件
                     List<int> randomEvents = [1, 2, 3, 4];
-                    List<int> weights = [2, 0, 0, 4];
+                    List<int> weights = [2, 1, 0, 4];
                     WeightedRandom weightedRandom = new(randomEvents, weights);
                     _randomEvent = weightedRandom.GetRandomValue();
                     //Trace.WriteLine("randomEvent:" + _randomEvent);
@@ -348,7 +348,7 @@ namespace SpringBoxIII
                             PlayMoveAnimation("MoveAnimation", new(ran.Next(0, (int)this.ActualWidth) + 10, ran.Next(0, (int)this.ActualHeight) + 10), async (s, e) =>
                             {
                                 await Task.Delay(ran.Next(35, 400));
-                                _satiety--;
+                                _satiety-=5;
                                 _isAnimationCompleted = true;
                                 _isMovedToCursor.ratId = -1;
                                 _isMovedToCursor.state = false;

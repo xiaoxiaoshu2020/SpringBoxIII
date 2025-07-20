@@ -27,17 +27,17 @@ namespace SpringBoxIII
 
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void BtnFeed_Click(object sender, RoutedEventArgs e)
         {
             MessageSent?.Invoke("Feed");
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+        private void BtnExit_Click(object sender, RoutedEventArgs e)
         {
             Application.Current.Shutdown();
         }
 
-        private void Button_Click_2(object sender, RoutedEventArgs e)
+        private void BtnClearCheese_Click(object sender, RoutedEventArgs e)
         {
             MessageSent?.Invoke("ClearAllCheese");
         }

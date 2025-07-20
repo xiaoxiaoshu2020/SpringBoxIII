@@ -5,11 +5,23 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SpringBoxIII"
         mc:Ignorable="d"
-        Title="MenuWindow" Height="135" Width="194">
-    <Grid>
-        <Button Content="Feed" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Click="Button_Click"/>
-        <Button Content="Exit" HorizontalAlignment="Left" Margin="54,10,0,0" VerticalAlignment="Top" Click="Button_Click_1"/>
-        <Button Content="ClearAllCheese" HorizontalAlignment="Left" Margin="10,34,0,0" VerticalAlignment="Top" Click="Button_Click_2"/>
+        Title="MenuWindow" Height="135" Width="194" WindowStyle="ToolWindow">
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#FFFF8E43"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#FFFF8E43"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Background="#FFFFFEE6">
+        <Button x:Name="BtnFeed" Content="Feed" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Click="BtnFeed_Click" Height="27" Width="43"/>
+        <Button x:Name="BtnExit" Content="Exit" HorizontalAlignment="Left" Margin="70,10,0,0" VerticalAlignment="Top" Click="BtnExit_Click" Height="27" Width="34"/>
+        <Button x:Name="BtnClearCheese" Content="ClearAllCheese" HorizontalAlignment="Left" Margin="10,42,0,0" VerticalAlignment="Top" Click="BtnClearCheese_Click" Height="27" Width="123"/>
 
     </Grid>
 </Window>

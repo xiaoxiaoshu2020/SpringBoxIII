@@ -84,8 +84,8 @@ namespace SpringBoxIII
                         // 设置图片源
                         Source = new BitmapImage(new Uri(System.IO.Path.GetFullPath("./Image/Cheese.png"), UriKind.Absolute)),
                         // 设置图片大小
-                        Width = 100,
-                        Height = 100
+                        Width = ran.Next(40,90),
+                        Height = Width
                     };
                     System.Windows.Point point = new(ran.Next(0, (int)this.ActualWidth) + 10, ran.Next(0, (int)this.ActualHeight) + 10);
                     Rat.TargetPoints.Add(point); // 设置目标点
