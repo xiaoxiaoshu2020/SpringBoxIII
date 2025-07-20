@@ -233,6 +233,11 @@ namespace SpringBoxIII
                 }
             }
         }
+        private void StopAnimation(string animationName)
+        {
+            Storyboard storyboard = (Storyboard)this.FindResource(animationName);
+            storyboard.Stop();
+        }
 
         private void SetImageSource(string filePath)
         {
@@ -372,6 +377,10 @@ namespace SpringBoxIII
                             OnAddRat();
                         }
                         break;
+                }
+                    _timer.Start();
+                    _isCopied = false;
+                    _isEventCompleted = true;
                 }
             }
         }
